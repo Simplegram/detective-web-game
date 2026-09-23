@@ -232,57 +232,54 @@ function RoomShell({
                   </span>
                 </span>
               </button>
-              <button
-                type="button"
-                onClick={() => {
-                  const next = !muted;
-                  setMuted(next);
-                  setMutedState(next);
-                }}
-                className={`flex items-center gap-2 rounded-full border px-3 py-1.5 transition ${
-                  muted
-                    ? "border-amber-500/50 bg-noir-850 text-amber-200"
-                    : "border-stone-700/70 bg-noir-850 text-stone-300 hover:border-amber-500/50 hover:text-amber-200"
-                }`}
-                aria-pressed={muted}
-              >
-                {muted ? (
-                  <VolumeX className="size-4 text-amber-400/80" />
-                ) : (
-                  <Volume2 className="size-4 text-amber-400/80" />
-                )}
-                <span className="relative inline-flex font-type text-xs tracking-[0.15em] uppercase">
-                  <span className="invisible">Sound off</span>
-                  <span className="absolute inset-0">
-                    {muted ? "Sound off" : "Sound on"}
-                  </span>
-                </span>
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  const next = !rain;
-                  setRain(next);
-                  setRainState(next);
-                }}
-                className={`flex items-center gap-2 rounded-full border px-3 py-1.5 transition ${
-                  rain
-                    ? "border-amber-500/50 bg-noir-850 text-amber-200"
-                    : "border-stone-700/70 bg-noir-850 text-stone-300 hover:border-amber-500/50 hover:text-amber-200"
-                }`}
-              >
-                <CloudRain className="size-4 text-amber-400/80" />
-                <span className="relative inline-flex font-type text-xs tracking-[0.15em] uppercase">
-                  <span className="invisible">Rain off</span>
-                  <span className="absolute inset-0">
-                    {rain ? "Rain on" : "Rain off"}
-                  </span>
-                </span>
-              </button>
             </div>
           </div>
         </div>
       </header>
+
+      {/* Settings — pinned top-right of the viewport: sound + ambient rain */}
+      <div className="fixed top-4 right-4 z-50 flex items-center gap-2">
+        <button
+          type="button"
+          onClick={() => {
+            const next = !muted;
+            setMuted(next);
+            setMutedState(next);
+          }}
+          title={muted ? "Sound off — click to enable" : "Sound on — click to mute"}
+          aria-label={muted ? "Sound is off, click to enable sound" : "Sound is on, click to mute"}
+          aria-pressed={muted}
+          className={`flex size-9 items-center justify-center rounded-full border bg-noir-850/90 backdrop-blur transition ${
+            muted
+              ? "border-amber-500/50 text-amber-200"
+              : "border-stone-700/70 text-stone-300 hover:border-amber-500/50 hover:text-amber-200"
+          }`}
+        >
+          {muted ? (
+            <VolumeX className="size-4" />
+          ) : (
+            <Volume2 className="size-4" />
+          )}
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            const next = !rain;
+            setRain(next);
+            setRainState(next);
+          }}
+          title={rain ? "Rain on — click to stop" : "Rain off — click to enable"}
+          aria-label={rain ? "Rain is on, click to stop" : "Rain is off, click to enable"}
+          aria-pressed={rain}
+          className={`flex size-9 items-center justify-center rounded-full border bg-noir-850/90 backdrop-blur transition ${
+            rain
+              ? "border-amber-500/50 text-amber-200"
+              : "border-stone-700/70 text-stone-300 hover:border-amber-500/50 hover:text-amber-200"
+          }`}
+        >
+          <CloudRain className="size-4" />
+        </button>
+      </div>
 
       {/* Desk */}
       <div className="mx-auto w-full max-w-6xl flex-1 px-6 py-8">
