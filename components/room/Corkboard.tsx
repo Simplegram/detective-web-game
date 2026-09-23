@@ -436,7 +436,7 @@ export function Corkboard({
         <span className="font-type text-[10px] tracking-[0.25em] text-amber-100/40 uppercase">
           drag to arrange · double-click or × to remove · syncs to the room
         </span>
-        <div className="ml-2 flex items-center gap-2">
+        <div className="ml-auto flex items-center gap-2">
         <button
           type="button"
           onClick={() => {
