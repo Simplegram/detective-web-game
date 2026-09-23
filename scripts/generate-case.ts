@@ -26,6 +26,20 @@ const DEFAULT_MODEL = "gpt-4o-mini";
 const LLM_TIMEOUT_MS = 300_000;
 const MAX_ATTEMPTS = 2; // initial + one auto-repair retry
 
+/** Every run appends to this file: prompts are stable, so it holds the raw
+ * LLM responses (think blocks included) and validation outcomes per attempt. */
+const DEBUG_LOG = path.join(path.dirname(fileURLToPath(import.meta.url)), "case-gen-debug.log");
+
+function logDebug(section: string, content: string): void {
+  try {
+    writeFileSync(DEBUG_LOG, `\n===== ${new Date().toISOString()} | ${section} =====\n${content}\n`, {
+      flag: "a",
+    });
+  } catch {
+    // Logging must never break a generation run.
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Strict schema for generated case JSON
 // ---------------------------------------------------------------------------
@@ -226,14 +240,24 @@ async function generateCase(client: OpenAI, model: string, theme: string, diffic
     console.log(`\n✔ Generation complete (~${chunkCount} chunks).`);
     if (!fullContent.trim()) throw new Error("empty completion from LLM");
 
+    logDebug(
+      `attempt ${attempt}/${MAX_ATTEMPTS} — raw LLM response (${chunkCount} chunks)`,
+      fullContent
+    );
+    if (process.env.GEN_VERBOSE) console.log(fullContent);
+
     const parsed = extractJson(fullContent);
     const result = generatedCaseSchema.safeParse(parsed);
-    if (result.success) return result.data;
+    if (result.success) {
+      logDebug(`attempt ${attempt}/${MAX_ATTEMPTS} — validation`, "PASSED");
+      return result.data;
+    }
 
     const issues = result.error.issues
       .map((i) => `- ${i.path.join(".")}: ${i.message}`)
       .join("\n");
     console.error(`Validation failed (attempt ${attempt}/${MAX_ATTEMPTS}):\n${issues}`);
+    logDebug(`attempt ${attempt}/${MAX_ATTEMPTS} — validation issues`, issues);
     feedback = issues;
     if (attempt === MAX_ATTEMPTS) {
       throw new Error("LLM output failed schema validation after auto-repair retry");
@@ -249,6 +273,10 @@ async function generateCase(client: OpenAI, model: string, theme: string, diffic
 function parseArgs(argv: string[]): { theme?: string; difficulty?: string } {
   const out: { theme?: string; difficulty?: string } = {};
   for (const arg of argv) {
+    if (arg === "--verbose") {
+      process.env.GEN_VERBOSE = "1";
+      continue;
+    }
     const m = arg.match(/^--(theme|difficulty|model)=(.+)$/);
     if (!m) continue;
     if (m[1] === "theme") out.theme = m[2].trim();
@@ -301,6 +329,24 @@ async function main() {
   const outPath = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "data", "cases", `${slug}.json`);
 
   console.log(`\n🎲 Generating "${theme}" (${difficulty}) via ${source} · model ${model}`);
+  logDebug(
+    `RUN START — ${new Date().toISOString()}`,
+    [
+      `theme: ${theme}`,
+      `difficulty: ${difficulty}`,
+      `model: ${model}`,
+      `source: ${source}`,
+      `slug: ${slug}`,
+      `out: data/cases/${slug}.json`,
+      "",
+      "---- SYSTEM PROMPT ----",
+      SYSTEM_PROMPT,
+      "",
+      "---- USER PROMPT (attempt 1) ----",
+      userPrompt(theme, difficulty, slug),
+    ].join("\n")
+  );
+  console.log(`🐛 debug log → scripts/case-gen-debug.log`);
   const data = await generateCase(client, model, theme, difficulty, slug);
 
   // The LLM must not re-invent the mandated id/theme/difficulty.
