@@ -178,25 +178,33 @@ Write the complete case JSON now.
 - Stage 2 rubric "targetCulprit": the exact killer name.`;
 }
 
-/** Strip reasoning-model think blocks and extract the JSON object, leniently. */
+/** Strip reasoning-model think blocks, unwrap code fences, extract JSON leniently. */
 function extractJson(raw: string): unknown {
-  const cleaned = raw.replace(new RegExp("<" + "think" + "[\\s\\S]*?<" + "/think" + ">", "gi"), "").trim();
+  const cleaned = raw
+    .replace(new RegExp("<" + "think" + "[\\s\\S]*?<" + "/think" + ">", "gi"), "")
+    .trim();
+  const fenced = cleaned.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
+  const candidate = fenced ? fenced[1].trim() : cleaned;
   try {
-    return JSON.parse(cleaned);
+    return JSON.parse(candidate);
   } catch {
-    const start = cleaned.indexOf("{");
-    const end = cleaned.lastIndexOf("}");
+    const start = candidate.indexOf("{");
+    const end = candidate.lastIndexOf("}");
     if (start === -1 || end <= start) throw new Error("no JSON object in LLM response");
-    return JSON.parse(cleaned.slice(start, end + 1));
+    return JSON.parse(candidate.slice(start, end + 1));
   }
 }
 
 async function generateCase(client: OpenAI, model: string, theme: string, difficulty: string, slug: string) {
   let feedback = "";
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
-    const res = await client.chat.completions.create({
+    // Stream so tokens flow immediately: a long non-streaming completion on the
+    // 27B model goes idle for 100s+ and Cloudflare kills the tunnel (524); the
+    // sudden socket drop then trips a libuv assertion on Windows.
+    const stream = await client.chat.completions.create({
       model,
       temperature: 0.8,
+      stream: true,
       messages: [
         { role: "system", content: SYSTEM_PROMPT },
         {
@@ -205,10 +213,20 @@ async function generateCase(client: OpenAI, model: string, theme: string, diffic
         },
       ],
     });
-    const raw = res.choices[0]?.message?.content ?? "";
-    if (!raw.trim()) throw new Error("empty completion from LLM");
+    let fullContent = "";
+    let chunkCount = 0;
+    process.stdout.write(`⚡ Attempt ${attempt}/${MAX_ATTEMPTS} — streaming: `);
+    for await (const chunk of stream) {
+      const delta = chunk.choices[0]?.delta?.content ?? "";
+      if (!delta) continue;
+      fullContent += delta;
+      chunkCount++;
+      if (chunkCount % 25 === 0) process.stdout.write(".");
+    }
+    console.log(`\n✔ Generation complete (~${chunkCount} chunks).`);
+    if (!fullContent.trim()) throw new Error("empty completion from LLM");
 
-    const parsed = extractJson(raw);
+    const parsed = extractJson(fullContent);
     const result = generatedCaseSchema.safeParse(parsed);
     if (result.success) return result.data;
 
@@ -309,7 +327,9 @@ async function main() {
 `);
 }
 
-main().catch((e) => {
-  console.error(`\n✖ ${e instanceof Error ? e.message : String(e)}`);
-  process.exit(1);
+main().catch((err) => {
+  // Deliberately no process.exit(): letting the event loop drain cleanly avoids
+  // libuv UV_HANDLE_CLOSING assertions on Windows after a dropped socket.
+  console.error(`\n✖ Case generation failed: ${err instanceof Error ? err.message : String(err)}`);
+  process.exitCode = 1;
 });
