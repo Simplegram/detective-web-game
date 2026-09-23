@@ -1,0 +1,84 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-display, "Playfair Display", Georgia, serif);
+  --font-type: var(--font-type, "Special Elite", "Courier New", monospace);
+
+  /* Cold Case palette */
+  --color-noir-950: #06080c;
+  --color-noir-900: #0b0f16;
+  --color-noir-850: #10151f;
+  --color-noir-800: #171e2b;
+  --color-noir-700: #232e42;
+  --color-manila: #e7d9b8;
+  --color-manila-dim: #b3a583;
+  --color-blood: #9c2b2b;
+  --color-blood-bright: #c03a3a;
+}
+
+:root {
+  --background: #06080c;
+  --foreground: #d8d4c8;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+}
+
+/* Faint film-grain / desk-lamp vignette used across app pages */
+.noir-bg {
+  background:
+    radial-gradient(1200px 600px at 50% -10%, rgba(217, 119, 6, 0.07), transparent 60%),
+    radial-gradient(900px 500px at 85% 110%, rgba(156, 43, 43, 0.08), transparent 55%),
+    var(--color-noir-950);
+}
+
+/* Manila folder card */
+.manila-card {
+  background: linear-gradient(165deg, #efe3c4 0%, #e7d9b8 55%, #d9c9a3 100%);
+  color: #241d10;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.35) inset,
+    0 18px 50px -18px rgba(0, 0, 0, 0.75);
+}
+
+/* Red confidential stamp */
+.stamp {
+  border: 3px double currentColor;
+  transform: rotate(-8deg);
+  letter-spacing: 0.25em;
+  opacity: 0.85;
+}
+
+/* Typewriter caret blink for the name entry prompt */
+@keyframes caret-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+.caret-blink {
+  animation: caret-blink 1.1s steps(1) infinite;
+}
+
+/* Expanding evidence-ping target */
+@keyframes ping-target {
+  0% { transform: translate(-50%, -50%) scale(0.4); opacity: 0.95; }
+  70% { transform: translate(-50%, -50%) scale(1.6); opacity: 0.35; }
+  100% { transform: translate(-50%, -50%) scale(2); opacity: 0; }
+}
+.ping-target {
+  animation: ping-target 1.1s ease-out infinite;
+}

@@ -1,0 +1,155 @@
+{
+  "difficulty": "Medium",
+  "documents": [
+    {
+      "category": "forensic",
+      "classification": "CONFIDENTIAL",
+      "content": "# CORONER'S OFFICE — REPORT OF POST-MORTEM EXAMINATION\n\n**Case:** Death of Lord Arthur Blackwood, Blackwood Manor, Ashford Lane\n**Examining Coroner:** Dr. Helena Marsh\n**Date of examination:** 17 October 1912\n\n## Circumstances of discovery\nThe deceased, aged 58, was discovered at approximately 23:00 on the evening of 14 October, slumped in the wingback chair before the desk in his private study. The door stood open; the study was in order. Mr. Jonathan Vance, who stated he was with the deceased when he collapsed, rang for the housekeeper; the family physician, Dr. Elliot, pronounced \"cardiac arrest\" at 23:15 without further examination. The case was reopened on 16 October on the toxicology results below.\n\n## Lividity and rigor\nLivor mortis was fully settled and mottled over the dependent surfaces; rigor mortis was fixed and in the process of relaxing. On the standard post-mortem intervals these findings place the time of death at **between 20:30 and 21:15** on the night of 14 October — not, as first reported, in the final hour before discovery.\n\n## Gastric contents\nThe stomach and upper intestine contained a partially digested pale herbal infusion consistent with a chamomile-and-peppermint blend. Stage of digestion indicates the last drink was taken **between 20:15 and 20:45**.\n\n## Toxicology\n- Blood (femoral): **cyanide 340 µg/mL** — greater than three times the minimum fatal concentration.\n- Gastric contents: cyanide detected in high concentration.\n- Residue on the glass found on the writing desk (a small tumbler of the deceased's nightly herbal infusion): **cyanide traces positive**.\n- No other poisons, drugs, or alcohol of note detected. No injection marks. No defensive or ligature wounds.\n\n## Findings\n1. Cause of death: **cyanide poisoning**, ingested in the deceased's evening herbal tea.\n2. The condition was externally indistinguishable from a fatal cardiac episode for the first several minutes — sufficient to explain the initial, and conveniently unchallenged, diagnosis of \"heart trouble.\"\n3. The glass on the desk and the tea service are the vehicle. The master's special blend is kept locked in the pantry; only the butler and the lady of the house hold keys to that room.",
+      "fileNumber": "CR-1014",
+      "id": "doc-1",
+      "initialStage": 1,
+      "title": "Coroner's Report"
+    },
+    {
+      "category": "interrogation",
+      "classification": "CONFIDENTIAL",
+      "content": "# STATEMENT OF JONATHAN VANCE, 44\n**Occupation:** Business partner, Blackwood Estates (holds 40%)\n**Taken by:** Det. Inspector R. Calloway, 18 October 1912\n\n> **Q: Walk us through your evening of the 14th, Mr. Vance.**\n> I took my usual Thursday — the 20:45 express from King's Cross. It ran on the minute, as it always does. I was through the gates of Blackwood Manor at **21:30 sharp**; Arthur was waiting under the porch light, as fond as ever. We went straight down to the study. I had a cup of his herbal tea, somewhere about **21:45**, while we talked over the Whitmore Gallery arrangement.\n>\n> He was in high spirits at first. Then, at about **22:05**, he suddenly went very still and pressed his hand to his chest — \"the old heart, he says, it plays tricks.\" At **22:10** he slumped forward in the chair. I rang the hall bell for the housekeeper. There was nothing to be done. I saw him taken on the table.\n>\n> **Q: You were not at the manor before 21:30, then?**\n> Never set foot in the house before the gates opened for me at 21:30. I was on that train the whole way. Anyone at the Ashford station can tell you.\n>\n> **Q: Did you and Lord Blackwood quarrel in recent weeks?**\n> We are partners. Men who are partners talk. He had been moodsome about \"reorganising the company\" — I understand he meant to restructure my shares in the new will. That is a matter for shareholders, not for you and me, Inspector.\n\n**Investigator's notes:** Subject composed, faintly theatrical. Gave the train time \"on the minute\" twice, with the confidence of a man repeating it to a mirror. When shown the gate log (see RWY-1014) he went quiet for the first time, and said only: \"I must have been in the house before the porter's watch began. The porter is old. Old men fall asleep.\"\n\n**[CONFIDENTIAL — DO NOT CIRCULATE]**",
+      "fileNumber": "INT-1015",
+      "id": "doc-2",
+      "initialStage": 1,
+      "title": "Interrogation — Jonathan Vance"
+    },
+    {
+      "category": "interrogation",
+      "classification": "CONFIDENTIAL",
+      "content": "# STATEMENT OF BEATRICE BLACKWOOD, 54 (widow of the deceased)\n**Taken by:** Det. Inspector R. Calloway, 18 October 1912\n\n> **Q: Where were you when Lord Blackwood died?**\n> In my bedroom, in the West Wing. I took my sleeping drops at twenty o'clock, exactly as I do on Thursdays, and I was asleep before the clock struck. I do not remember waking. I heard nothing at all. When I was roused at half past eleven the house was in such confusion that I have a poor account of it still.\n>\n> **Q: Who saw you after 20:00?**\n> My maid, and my housekeeper, I suppose. I did not go down at all. I was sleeping.\n>\n> **Q: Your 'sleeping drops' — who supplies them?**\n> They come from Dr. Elliot's cabinet. The housekeeper keeps the bottle and checks it.\n\n**Attached — statement of Mrs. Agnes Poole, housekeeper:**\n> I saw the lady in the hall at **20:05**; she was going up to the West Wing and she said good evening to me. I knocked at her door about **20:40** to remind her supper was cold — no answer, and the door was **closed but not latched**. I did not go in. I did not see her again until the commotion.\n> The bottle of 'sleeping drops' in the lady's nightstand drawer is one I check weekly. It was full to the neck the night before, and is full to the neck still.\n\n**Attached — statement of Mrs. Emily Davies, cook:**\n> I kept the pantry with Hargrove from about **19:58 until after 20:35** while we did the supper trays. He never left my side. I know the pantry locks — there are two keys: Mr. Hargrove's, and the lady's, for the master's teas. I saw the lady nowhere that night below stairs. But I also know the hall, and the hall door to the pantry was **open** while I was there, and I did not close it.\n\n**Investigator's notes:** Subject wept steadily; no contradictions pressed at interview. Her 'asleep since 20:00' account is **unverified by any witness**. The bottle of drops was found in her drawer; laboratory comparison is pending (see supplementary findings, doc-6).",
+      "fileNumber": "INT-1016",
+      "id": "doc-3",
+      "initialStage": 1,
+      "title": "Interrogation — Beatrice Blackwood"
+    },
+    {
+      "category": "timeline",
+      "classification": "UNRESTRICTED",
+      "content": "# ASHFORD LINE — RAILWAY DISPATCH LOG, 14 OCTOBER 1912\n**Source:** Ashford Junction signal box, with station master's notes. Extracted by Det. Inspector Calloway, 19 October.\n\n| Time | Entry |\n|------|-------|\n| 20:45 | Scheduled departure, 20:45 express King's Cross → Ashford (Thursday service). |\n| 20:52 | **Line obstruction, mile 42.** Elm tree down across both tracks, storm-damaged. Train holding. |\n| 21:20 | Obstruction cleared. Line re-opened, single-line working. |\n| 21:45 | Delayed 20:45 express back in running, 60 minutes late. |\n| 21:58 | Train arrived Ashford station, all platforms. |\n| 22:01 | Station master's note: *\"One passenger, ticket Ashford, alighted. Gentleman's overcoat, travelling alone. No one answering VANCE among those I spoke to, and the booking office shows no Vance in the carriage manifest I was given.\"* |\n\n**Power company log, same night (context):** 21:10 — 21:25, local supply fault, Ashford Lane district; Blackwood Manor on its own generator, unaffected by the outage.\n\n## MANOR GATE LOG (porter's book)\n\n| Time | Entry |\n|------|-------|\n| 20:45 | — (no entry) |\n| 21:30 | — (no entry) |\n| 22:05 | **Car, black Ford, entered drive. No ticket taken — recognised as Mr. Vance's.** |\n| 22:07 | Gate closed. |\n\n**Note from the porter, Mr. Otis Grew:** \"My watch runs 20:00 to midnight. I saw no car at 21:30. If a car had come in I would have logged it or I would have been drinking, and I was not.\"",
+      "fileNumber": "RWY-1014",
+      "id": "doc-4",
+      "initialStage": 1,
+      "title": "Railway Dispatch & Power Log"
+    },
+    {
+      "category": "timeline",
+      "classification": "CONFIDENTIAL",
+      "content": "# MR. HARGROVE'S HOUSEHOLD LOG — 14 OCTOBER 1912\n**Mr. Thomas Hargrove, head butler (30 years' service). The pantry is his responsibility; the master's special blend — chamomile and peppermint — is kept in a locked tin on the pantry's high shelf. Keys to the pantry: Hargrove's, and the lady of the house's.**\n\n| Time | Entry |\n|------|-------|\n| 17:00 | Took over pantry. Mrs. Davies (cook) on duty with me from 19:58 onward for the supper trays. |\n| 19:45 | Lady passed the hall in her dressing gown; she nodded to me and went on. I am certain she did not stop at the pantry door. |\n| 20:05 | Lady to the West Wing stairs. (Corroborated by Mrs. Poole.) |\n| 20:10 | **Mrs. Poole brought the master's chamomile sachets to the pantry on his standing order; out again at once.** |\n| 20:12 | Set the pot. Filled the master's special tin from the pantry shelf — the tin was **already open**, the paper lining partly used; I had not touched it since the 10th. |\n| 20:15 | **Master's herbal tea prepared.** The master takes it himself; I set the pot and glass in the sideboard tray. |\n| 20:20 | Carried the tray to the study. The door was open; the master at his desk, the letter to his solicitor before him. |\n| 20:30 | Returned to the pantry. Mrs. Davies still with me. We boxed the supper trays until after 20:35. |\n| 21:00 | **The master's teacup, returned to the pantry by the housekeeper, was washed and broken** — a hairline crack, the cup ruined. I kept the shards in the crockery box. |\n| 21:30 | — |\n| 22:10 | The bell. The study. The rest is in the Inspector's report. |\n\n**Pantry inventory (evening of the 14th):** the master's special tin — chamomile and peppermint leaves, **half-emptied, and the leaves inside smelled, I am sorry to say, faintly of bitter almonds**. I did not think of it then. I thought of it when the glass on the desk was tested.\n\n**Attached — Mrs. Davies, cook:** \"Hargrove was in the pantry with me from 19:58 to 20:35 without leaving. I would have died before I let anyone else into that room while the supper went on. And I know that pantry door — it was open most of the evening, and I never closed it on my side.\" \n\n**Investigator's note:** The bitter-almond smell in the tin is consistent with prussic acid (cyanide) having been dissolved into the dry blend. The tin was open at 20:12 — whoever sweetened the leaves did it before the butler poured at 20:15, or into the pot between 20:15 and 20:45 from a room only two keys could open.",
+      "fileNumber": "PAN-1014",
+      "id": "doc-5",
+      "initialStage": 1,
+      "title": "Butler's Daily Log & Pantry Inventory"
+    },
+    {
+      "category": "evidence",
+      "classification": "CONFIDENTIAL",
+      "content": "# THE TORN WILL OF 1998 & THE SOLICITOR'S NOTE — WITH HANDWRITING ANALYSIS\n**Seized:** 19 October 1912, Blackwood Manor. **Compiled by:** Det. Inspector R. Calloway; handwriting analysis by M. Fensham, Chief Constabulary.\n\n## The will\nThe will of 1998, executed by the late Lord Blackwood before his marriage, left **the entire estate, the collection, and the Blackwood Estates company to Beatrice Blackwood, his wife**, with a residuary provision for the Blackwood name. The torn halves were recovered in two places:\n- **Half A** — from the writing desk in the study, under the blotter, freshly torn, fibres still frayed.\n- **Half B** — from the lady of the house's writing cabinet in the West Wing, folded and pressed between ledgers, torn in the same pattern.\n\nThe two halves match. The will was torn **that evening**, by the hand that set the halves where they were found.\n\n## The solicitor's note, 19:45\nRecovered from the master's desk, sealed and addressed to Mr. Pemberton, his solicitor. In the master's own hand:\n\n> *14 October — Mr. Pemberton. I have at last closed the matter of the Whitmore Gallery. My wife has been selling from my collection for three years; I have the ledgers, and Whitmore's own book confirms it. I tore the old will up to-night. When you receive this, have my estate settled to the County Historical Trust in the name I gave you, and the company shares bought out and held in trust. Say nothing to Beatrice. Say nothing to Jonathan either — the man is useful to the company, and I mean no harm to him, but he will not understand. A. B.*\n\n**Handwriting analysis (M. Fensham):** the note is in the master's hand without qualification. The pen pressure, the slant, and the characteristic 'g' of 'my wife have been selling' match his correspondence of 1901–1912. **The note was written before 19:45, before the tea, and before the death.**\n\n## Supplementary findings\n1. **The 'sleeping drops'** from the lady's nightstand drawer, laboratory analysis: **plain distilled water in a labelled bottle — no soporific of any kind.** The lady's 'asleep since 20:00' was not a state she was chemically in. She was playing at it, or she was awake, and the house only knows which by what her maid and housekeeper did and did not see.\n2. **The torn fragment in Mr. Vance's coat.** When the study was searched on the 19th, a fragment of the 1998 will — Half A's lower corner, torn in the same pattern — was found folded in the inside pocket of the coat Mr. Vance wore that night. He said he pocketed it 'so the Inspector might find it where I found it.' The fragment is from **Half A**, the half found at the master's desk — not the lady's half in the West Wing.\n3. **The pantry key.** Two keys open the pantry: Mr. Hargrove's, and the lady's. Mr. Hargrove's was in his waistcoat pocket at all times the constables could observe; the lady's key was found in the West Wing, on its hook by her door, with **a faint brownish trace on the bow** — the same pantry-dust as the shelf where the special tin stands.\n\n**Case summary for the file:** The master was poisoned in his own tea, made from a tin only two keys could open, in the last hour before the house closed up. The man who found the body was not in the house before 22:05, and his coat carries a piece of a will he had every reason to keep. The lady of the house was never seen below stairs after 20:05, slept on water, and held the other key.",
+      "fileNumber": "WILL-1019",
+      "id": "doc-6",
+      "initialStage": 2,
+      "title": "Torn Will & Handwriting Analysis"
+    }
+  ],
+  "id": "case-blackwood-manor",
+  "stages": [
+    {
+      "description": "Vance swears he rode the 20:45 express from King's Cross and was in the study with the Lord before his collapse. Cross-reference his statement with the railway dispatch and power log. A man who was not in the house before the tea was drunk cannot be the poisoner — but men who lie about where they are are almost always hiding something.",
+      "objective": "Disprove Jonathan Vance's claimed timeline and establish exactly when he was at the manor.",
+      "stageNumber": 1,
+      "title": "Break an Alibi",
+      "unlocksEvidenceIds": [
+        "doc-6"
+      ],
+      "verificationRubric": {
+        "criticalContradiction": "Vance claims to have taken the 20:45 King's Cross express and arrived at Blackwood Manor at 21:30, but the railway dispatch log shows that train was delayed 60 minutes by a fallen tree and did not reach Ashford until 21:58 — and the manor gate log records Vance's car entering the drive at 22:05. He could not have been in the house before 22:05, so his claimed 21:30 arrival and 21:45 tea with the Lord are fabricated.",
+        "requiredClueIds": [
+          "doc-2",
+          "doc-4"
+        ],
+        "targetCulprit": "Jonathan Vance",
+        "acceptedKeywords": [
+          "train",
+          "delay",
+          "late",
+          "tree",
+          "ashford",
+          "schedule",
+          "dispatch",
+          "21:58",
+          "60 min"
+        ]
+      }
+    },
+    {
+      "description": "The coroner fixed the time of death to the evening tea. The butler was pinned to the pantry by his cook, and Vance was outside the house entirely. Rebuild the last ninety minutes of the master's life, examine the will Arthur was tearing up, and name the poisoner.",
+      "objective": "Deduce who poisoned the tea before 20:15 and why.",
+      "stageNumber": 2,
+      "title": "Identify the Poisoner & Motive",
+      "unlocksEvidenceIds": [],
+      "verificationRubric": {
+        "criticalContradiction": "The master's special herbal tea was prepared from the pantry tin at 20:15 and drunk by ~20:45 (time of death 20:30–21:15). Jonathan Vance was in the house no earlier than 22:05 (railway delay + gate log), and the butler was witnessed in the pantry by the cook from 19:58 to 20:35 — so the poison was placed before or during the 20:15 preparation. Beatrice, who holds a pantry key for the master's tea and whose 'asleep since 20:00' alibi was never verified (the housekeeper only saw her enter the hall at 20:05; her 'sleeping drops' were distilled-water placebos) is the only person with access, means, and a motive: Arthur's 19:45 note and the torn 1998 will show he had just discovered she had been selling his art collection for three years and was that very evening disinheriting her in favour of the County Historical Trust.",
+        "requiredClueIds": [
+          "doc-1",
+          "doc-4",
+          "doc-5",
+          "doc-6"
+        ],
+        "targetCulprit": "Beatrice Blackwood",
+        "acceptedKeywords": [
+          "beatrice",
+          "key",
+          "keys",
+          "pantry",
+          "water",
+          "drops",
+          "will",
+          "disinherit",
+          "selling",
+          "collection",
+          "tin",
+          "access",
+          "motive",
+          "20:15",
+          "placebo",
+          "drawer"
+        ]
+      }
+    }
+  ],
+  "synopsis": "Lord Arthur Blackwood, 58, was found slumped in his private study on the night of 14 October, officially pronounced dead of a heart attack. The coroner's office disagrees. The tea was poisoned, the alibis are a lie, and the Blackwood family ledger is about to tear itself open.",
+  "title": "The Death of Lord Arthur Blackwood",
+  "victim": {
+    "age": 58,
+    "name": "Lord Arthur Blackwood",
+    "occupation": "Landowner and art collector",
+    "photoUrl": ""
+  },
+  "suspects": [
+    {
+      "name": "Jonathan Vance",
+      "role": "Business partner — holds 40% of Blackwood Estates"
+    },
+    {
+      "name": "Beatrice Blackwood",
+      "role": "Widow of the deceased"
+    },
+    {
+      "name": "Thomas Hargrove",
+      "role": "Head butler — in the household 30 years"
+    },
+    {
+      "name": "Agnes Poole",
+      "role": "Housekeeper"
+    },
+    {
+      "name": "Emily Davies",
+      "role": "Cook"
+    }
+  ]
+}
