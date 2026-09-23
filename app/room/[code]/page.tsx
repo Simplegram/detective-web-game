@@ -14,8 +14,8 @@ import {
   Volume2,
   VolumeX,
 } from "lucide-react";
-import { CASES, blackwoodManorCase } from "@/data/cases";
-import type { CaseData, CaseDocument } from "@/types";
+import { resolveCase } from "@/data/cases";
+import type { CaseDocument } from "@/types";
 import { useRoomSync } from "@/hooks/useRoomSync";
 import { NameGate, readPlayerId, readStoredName } from "@/components/room/NameGate";
 import { PresenceBar } from "@/components/room/PresenceBar";
@@ -89,8 +89,7 @@ function RoomShell({
   const [muted, setMutedState] = useState(() => isMuted());
   const [rain, setRainState] = useState(() => isRainOn());
 
-  const caseData: CaseData =
-    (sync.room && CASES[sync.room.case_id]) || blackwoodManorCase;
+  const caseData = resolveCase(sync.room?.case_id);
   const stage = caseData.stages.find((s) => s.stageNumber === sync.room?.current_stage);
   const caseClosed =
     !!sync.room &&
@@ -171,7 +170,7 @@ function RoomShell({
           </div>
 
           <div className="ml-auto flex flex-col items-end gap-2">
-            <PresenceBar players={sync.players} selfId={player.id} />
+            <PresenceBar players={sync.players} selfId={player.id} caseData={caseData} />
             <div className="flex flex-wrap items-center gap-2">
 
           {!caseClosed && (
@@ -319,6 +318,7 @@ function RoomShell({
             Case files
           </h2>
           <EvidenceList
+            caseData={caseData}
             unlockedIds={unlockedIds}
             totalDocs={caseData.documents.length}
             onOpen={handleOpenDoc}
@@ -329,6 +329,7 @@ function RoomShell({
         {corkboardOpen && (
           <section className="mt-10">
             <Corkboard
+              caseData={caseData}
               pins={sync.roomState?.corkboard_pins ?? []}
               players={sync.players}
               playerName={name}

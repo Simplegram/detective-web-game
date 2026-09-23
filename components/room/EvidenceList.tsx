@@ -8,8 +8,7 @@ import {
   ScrollText,
   type LucideIcon,
 } from "lucide-react";
-import { blackwoodManorCase as caseData } from "@/data/cases";
-import type { CaseDocument, DocumentCategory } from "@/types";
+import type { CaseData, CaseDocument, DocumentCategory } from "@/types";
 
 const CATEGORY_ICON: Record<DocumentCategory, LucideIcon> = {
   forensic: Fingerprint,
@@ -26,11 +25,13 @@ const CATEGORY_LABEL: Record<DocumentCategory, string> = {
 };
 
 export function EvidenceList({
+  caseData,
   unlockedIds,
   totalDocs,
   onOpen,
   onLocked,
 }: {
+  caseData: CaseData;
   unlockedIds: string[];
   totalDocs: number;
   onOpen: (doc: CaseDocument) => void;

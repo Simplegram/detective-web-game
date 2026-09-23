@@ -10,8 +10,7 @@ import {
   X,
   type LucideIcon,
 } from "lucide-react";
-import type { CaseDocument, CorkboardPin, PlayerPresence, PinType } from "@/types";
-import { blackwoodManorCase as caseData } from "@/data/cases";
+import type { CaseData, CaseDocument, CorkboardPin, PlayerPresence, PinType } from "@/types";
 import { playSfx } from "@/lib/sfx";
 
 /**
@@ -132,6 +131,7 @@ function makePin(
   type: PinType,
   unlockedDocs: CaseDocument[],
   existing: CorkboardPin[],
+  caseData: CaseData,
 ): CorkboardPin | null {
   const used = new Set(existing.map((p) => p.label));
   let label = "Note";
@@ -183,12 +183,14 @@ export function Corkboard({
   players,
   playerName,
   unlockedDocs,
+  caseData,
   onPinsChange,
 }: {
   pins: CorkboardPin[];
   players: PlayerPresence[];
   playerName: string;
   unlockedDocs: CaseDocument[];
+  caseData: CaseData;
   onPinsChange: (pins: CorkboardPin[]) => void;
 }) {
   const boardRef = useRef<HTMLDivElement>(null);
@@ -305,7 +307,7 @@ export function Corkboard({
   };
 
   const addPin = (type: PinType) => {
-    const pin = makePin(type, unlockedDocs, localPins);
+    const pin = makePin(type, unlockedDocs, localPins, caseData);
     if (!pin) {
       warnSpawn(
         type === "suspect"

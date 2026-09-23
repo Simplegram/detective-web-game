@@ -1,7 +1,4 @@
-"use client";
-
-import type { PlayerPresence } from "@/types";
-import { blackwoodManorCase as caseData } from "@/data/cases";
+import type { CaseData, PlayerPresence } from "@/types";
 
 const COLORS = [
   "bg-emerald-400",
@@ -18,7 +15,7 @@ function colorFor(name: string): string {
   return COLORS[Math.abs(h) % COLORS.length];
 }
 
-function docTitle(docId: string | null): string | null {
+function docTitle(caseData: CaseData, docId: string | null): string | null {
   if (!docId) return null;
   return caseData.documents.find((d) => d.id === docId)?.title ?? null;
 }
@@ -26,14 +23,16 @@ function docTitle(docId: string | null): string | null {
 export function PresenceBar({
   players,
   selfId,
+  caseData,
 }: {
   players: PlayerPresence[];
   selfId: string;
+  caseData: CaseData;
 }) {
   return (
     <div className="flex flex-wrap items-center gap-2">
       {players.map((p) => {
-        const reading = docTitle(p.activeDocId);
+        const reading = docTitle(caseData, p.activeDocId);
         return (
           <span
             key={p.id}

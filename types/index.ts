@@ -18,7 +18,9 @@ export interface Victim {
   name: string;
   age: number;
   occupation: string;
-  photoUrl: string;
+  /** One-line dossier snippet shown on case cards. */
+  description?: string;
+  photoUrl?: string;
 }
 
 /** Criteria the LLM judge (POST /api/verify) uses to grade a deduction. */
@@ -70,6 +72,9 @@ export interface CaseData {
   stages: CaseStage[];
   documents: CaseDocument[];
   suspects: Suspect[];
+  /** Optional display metadata (case cards, generator output). */
+  estimatedMinutes?: number;
+  tags?: string[];
 }
 
 // ---------------------------------------------------------------------------

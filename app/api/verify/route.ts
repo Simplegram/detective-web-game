@@ -8,7 +8,7 @@
  * stage, unlocks the new evidence, and broadcasts `stage_solved` to the room.
  */
 import { NextRequest, NextResponse } from "next/server";
-import { CASES } from "@/data/cases";
+import { resolveCase } from "@/data/cases";
 import { judgeDeduction } from "@/lib/ai-judge";
 import { sendRoomBroadcast } from "@/lib/supabase/broadcast";
 import { getSupabaseServer } from "@/lib/supabase/server";
@@ -62,8 +62,7 @@ export async function POST(req: NextRequest) {
   if (roomError) return NextResponse.json({ error: roomError.message }, { status: 500 });
   if (!room) return NextResponse.json({ error: "Room not found." }, { status: 404 });
 
-  const caseData = CASES[room.case_id];
-  if (!caseData) return NextResponse.json({ error: `Unknown case: ${room.case_id}.` }, { status: 500 });
+  const caseData = resolveCase(room.case_id);
   if (room.solved || room.current_stage > caseData.stages.length) {
     return NextResponse.json({ error: "This case is closed. There is nothing left to verify." }, { status: 400 });
   }
