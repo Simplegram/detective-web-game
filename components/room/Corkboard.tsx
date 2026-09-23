@@ -436,7 +436,7 @@ export function Corkboard({
         <span className="font-type text-[10px] tracking-[0.25em] text-amber-100/40 uppercase">
           drag to arrange · double-click or × to remove · syncs to the room
         </span>
-        <div className="ml-auto flex items-center gap-2">
+        <div className="ml-auto flex flex-wrap items-center gap-2">
         <button
           type="button"
           onClick={() => {
@@ -456,15 +456,14 @@ export function Corkboard({
           </span>
         </button>
         {stringMode && (
-          <span className="font-type rounded-md border border-blood/60 bg-noir-900/80 px-3 py-1.5 text-[10px] tracking-[0.2em] text-blood-bright uppercase">
+          <span className="font-type ml-2 rounded-md border border-blood/60 bg-noir-900/80 px-3 py-1.5 text-[10px] tracking-[0.2em] text-blood-bright uppercase">
             {connectingSource
               ? "Now pick a target pin"
               : "Click a pin, then a target pin"}
             {" · "}ESC cancels
           </span>
         )}
-        </div>
-        <div className="ml-auto flex flex-wrap gap-1.5">
+        <div className="flex flex-wrap gap-1.5">
           {(Object.keys(PIN_STYLE) as PinType[]).map((t) => {
             const s = PIN_STYLE[t];
             return (
@@ -481,6 +480,7 @@ export function Corkboard({
               </button>
             );
           })}
+        </div>
         </div>
       </div>
 
