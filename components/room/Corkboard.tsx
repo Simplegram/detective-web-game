@@ -122,14 +122,22 @@ function yarnGeometry(x1: number, y1: number, x2: number, y2: number) {
   };
 }
 
-function makePin(type: PinType, unlockedDocs: CaseDocument[]): CorkboardPin {
+function pickUnused(pool: string[], used: Set<string>): string | null {
+  const fresh = pool.filter((s) => !used.has(s));
+  const list = fresh.length ? fresh : pool;
+  return list[Math.floor(Math.random() * list.length)] ?? null;
+}
+
+function makePin(type: PinType, unlockedDocs: CaseDocument[], existing: CorkboardPin[]): CorkboardPin {
+  const used = new Set(existing.map((p) => p.label));
   let label = "Note";
   if (type === "suspect") {
-    label = caseData.suspects[Math.floor(Math.random() * caseData.suspects.length)].name;
+    label = pickUnused(caseData.suspects.map((s) => s.name), used) ?? "Suspect";
   } else if (type === "evidence") {
-    const pool = unlockedDocs.length ? unlockedDocs : caseData.documents;
-    const d = pool[Math.floor(Math.random() * pool.length)];
-    label = `${d.fileNumber} ${d.title}`;
+    const pool = (unlockedDocs.length ? unlockedDocs : caseData.documents).map(
+      (d) => `${d.fileNumber} ${d.title}`,
+    );
+    label = pickUnused(pool, used) ?? "Evidence";
   } else if (type === "photo") {
     label = "Scene photo";
   }
@@ -267,7 +275,7 @@ export function Corkboard({
   };
 
   const addPin = (type: PinType) => {
-    const pin = makePin(type, unlockedDocs);
+    const pin = makePin(type, unlockedDocs, localPins);
     pin.by = playerName;
     const next = [...localPins, pin];
     setLocalPins(next);
