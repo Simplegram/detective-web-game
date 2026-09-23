@@ -436,6 +436,7 @@ export function Corkboard({
         <span className="font-type text-[10px] tracking-[0.25em] text-amber-100/40 uppercase">
           drag to arrange · double-click or × to remove · syncs to the room
         </span>
+        <div className="ml-2 flex items-center gap-2">
         <button
           type="button"
           onClick={() => {
@@ -462,6 +463,7 @@ export function Corkboard({
             {" · "}ESC cancels
           </span>
         )}
+        </div>
         <div className="ml-auto flex flex-wrap gap-1.5">
           {(Object.keys(PIN_STYLE) as PinType[]).map((t) => {
             const s = PIN_STYLE[t];
