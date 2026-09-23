@@ -124,20 +124,28 @@ function yarnGeometry(x1: number, y1: number, x2: number, y2: number) {
 
 function pickUnused(pool: string[], used: Set<string>): string | null {
   const fresh = pool.filter((s) => !used.has(s));
-  const list = fresh.length ? fresh : pool;
-  return list[Math.floor(Math.random() * list.length)] ?? null;
+  if (!fresh.length) return null;
+  return fresh[Math.floor(Math.random() * fresh.length)];
 }
 
-function makePin(type: PinType, unlockedDocs: CaseDocument[], existing: CorkboardPin[]): CorkboardPin {
+function makePin(
+  type: PinType,
+  unlockedDocs: CaseDocument[],
+  existing: CorkboardPin[],
+): CorkboardPin | null {
   const used = new Set(existing.map((p) => p.label));
   let label = "Note";
   if (type === "suspect") {
-    label = pickUnused(caseData.suspects.map((s) => s.name), used) ?? "Suspect";
+    const picked = pickUnused(caseData.suspects.map((s) => s.name), used);
+    if (picked === null) return null;
+    label = picked;
   } else if (type === "evidence") {
     const pool = (unlockedDocs.length ? unlockedDocs : caseData.documents).map(
       (d) => `${d.fileNumber} ${d.title}`,
     );
-    label = pickUnused(pool, used) ?? "Evidence";
+    const picked = pickUnused(pool, used);
+    if (picked === null) return null;
+    label = picked;
   } else if (type === "photo") {
     label = "Scene photo";
   }
@@ -207,6 +215,9 @@ export function Corkboard({
   const [draft, setDraft] = useState<{ x: number; y: number } | null>(null);
   /** Edge key under the pointer (brighter render + cut affordance). */
   const [hoverEdge, setHoverEdge] = useState<string | null>(null);
+  /** Transient spawn warning (pool exhausted) — auto-clears. */
+  const [spawnWarn, setSpawnWarn] = useState<string | null>(null);
+  const warnTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const online = new Set(players.map((p) => p.name));
 
@@ -274,8 +285,35 @@ export function Corkboard({
     };
   };
 
+  const usedLabels = new Set(localPins.map((p) => p.label));
+  const evidencePool = (unlockedDocs.length ? unlockedDocs : caseData.documents).map(
+    (d) => `${d.fileNumber} ${d.title}`,
+  );
+  /** A pin kind can still spawn if any of its labels isn't on the board. */
+  const canSpawn = (t: PinType) =>
+    t === "note" || t === "photo"
+      ? true
+      : (t === "suspect"
+          ? caseData.suspects.map((s) => s.name)
+          : evidencePool
+        ).some((l) => !usedLabels.has(l));
+
+  const warnSpawn = (msg: string) => {
+    setSpawnWarn(msg);
+    if (warnTimerRef.current) clearTimeout(warnTimerRef.current);
+    warnTimerRef.current = setTimeout(() => setSpawnWarn(null), 3200);
+  };
+
   const addPin = (type: PinType) => {
     const pin = makePin(type, unlockedDocs, localPins);
+    if (!pin) {
+      warnSpawn(
+        type === "suspect"
+          ? "Every suspect is already on the board"
+          : "Every document is already pinned",
+      );
+      return;
+    }
     pin.by = playerName;
     const next = [...localPins, pin];
     setLocalPins(next);
@@ -471,15 +509,25 @@ export function Corkboard({
             {" · "}ESC cancels
           </span>
         )}
+        {spawnWarn && (
+          <span className="font-type animate-pulse rounded-md border border-amber-400/70 bg-amber-950/80 px-3 py-1.5 text-[10px] tracking-[0.2em] text-amber-300 uppercase">
+            ⚠ {spawnWarn}
+          </span>
+        )}
         <div className="flex flex-wrap gap-1.5">
           {(Object.keys(PIN_STYLE) as PinType[]).map((t) => {
             const s = PIN_STYLE[t];
+            const exhausted = !canSpawn(t);
             return (
               <button
                 key={t}
                 type="button"
                 onClick={() => addPin(t)}
-                className="flex items-center gap-1.5 rounded-md border border-black/50 bg-black/30 px-3 py-1.5 text-amber-100/80 transition hover:border-amber-400/50 hover:bg-black/50 hover:text-amber-100"
+                className={`flex items-center gap-1.5 rounded-md border px-3 py-1.5 transition ${
+                  exhausted
+                    ? "cursor-not-allowed border-black/40 bg-black/20 text-amber-100/30"
+                    : "border-black/50 bg-black/30 text-amber-100/80 hover:border-amber-400/50 hover:bg-black/50 hover:text-amber-100"
+                }`}
               >
                 <s.Icon className="size-3.5" />
                 <span className="font-type text-[11px] tracking-[0.15em] uppercase">
@@ -489,7 +537,7 @@ export function Corkboard({
             );
           })}
         </div>
-        </div>
+      </div>
       </div>
 
       {/* Cork surface */}
