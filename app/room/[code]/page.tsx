@@ -150,7 +150,9 @@ function RoomShell({
     <main className="noir-bg flex min-h-screen flex-col">
       {/* Top bar */}
       <header className="border-b border-stone-800/80 bg-noir-900/80 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-6 gap-y-3 px-6 py-4">
+          <div className="mx-auto max-w-6xl px-6 py-4">
+            <div className="flex flex-col items-center gap-x-6 gap-y-3 lg:grid lg:grid-cols-[1fr_auto_1fr]">
+              <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
           <Link href="/" className="font-type text-xs tracking-[0.25em] text-stone-500 uppercase transition hover:text-amber-300">
             ← Archives
           </Link>
@@ -169,10 +171,10 @@ function RoomShell({
               )}
             </p>
           </div>
+              </div>
 
-          <div className="ml-auto flex flex-col items-end gap-2">
-            <PresenceBar players={sync.players} selfId={player.id} />
-            <div className="flex flex-wrap items-center gap-2">
+              <div className="flex flex-wrap items-center justify-center gap-2">
+
               {!caseClosed && (
                 <button
                   type="button"
@@ -233,8 +235,11 @@ function RoomShell({
                 </span>
               </button>
             </div>
+              <div className="flex flex-wrap items-center justify-end gap-2">
+                <PresenceBar players={sync.players} selfId={player.id} />
+              </div>
+            </div>
           </div>
-        </div>
       </header>
 
       {/* Settings — pinned top-right of the viewport: sound + ambient rain */}
