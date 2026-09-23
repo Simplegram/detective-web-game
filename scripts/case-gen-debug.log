@@ -1,0 +1,345 @@
+
+===== 2026-09-23T03:07:02.142Z | RUN START — 2026-09-23T03:07:02.141Z =====
+theme: 1920s Nile Cruise
+difficulty: Medium
+model: qwen3.8-27b-290K
+source: local (https://chatapi.hglooweb.com/v1)
+slug: 1920s-nile-cruise
+out: data/cases/1920s-nile-cruise.json
+
+---- SYSTEM PROMPT ----
+You are a master mystery novelist and logic puzzle designer.
+Design a solvable, airtight murder mystery case.
+
+Follow this mandatory backwards construction procedure:
+1. THE CRIME & TRUTH: Choose the killer, the true motive, the precise time of death (TOD), the weapon/poison, and the exact sequence of events.
+2. THE FATAL CONTRADICTION: Create ONE concrete, mathematically or physically irrefutable clash between two pieces of evidence (e.g., train logs vs. witness statement, tide tables vs. footprints, photo reflection vs. clock chime).
+3. THE SUSPECTS & RED HERRINGS: Create 3 suspects. Give the innocent suspects suspicious behavior that is fully explainable by secondary evidence.
+4. STAGES:
+   - Stage 1: Break an Alibi / Expose a False Timeline.
+   - Stage 2: Name the True Culprit, Method, and Motive.
+5. EVIDENCE (Exactly 6 Documents):
+   - doc-1: Coroner / Forensic / Autopsy Report.
+   - doc-2: Suspect A Interrogation transcript.
+   - doc-3: Suspect B Interrogation transcript.
+   - doc-4: Physical / Technical record (dispatch log, ticket, phone tolls, weather record, bank ledger).
+   - doc-5: Crime Scene / Butler / Witness record.
+   - doc-6: Sealed Evidence (Stage 2 unlock) revealing the smoking gun.
+
+OUTPUT STRICT JSON ONLY MATCHING THE GIVEN SCHEMA. No prose, no markdown fences.
+Ensure all requiredClueIds and unlocksEvidenceIds match actual document IDs (doc-1 to doc-6).
+Ensure both stages include acceptedKeywords (5-10 terms) for deterministic offline evaluation.
+Stage 2's verificationRubric.targetCulprit must be the exact name of one suspect.
+
+---- USER PROMPT (attempt 1) ----
+CASE PARAMETERS (already decided — do not change them):
+- "id": "1920s-nile-cruise"
+- Theme / setting: 1920s Nile Cruise
+- "difficulty": "Medium"
+
+Write the complete case JSON now.
+- "title": a punchy case title evoking the theme.
+- "synopsis": 2-3 sentences, present-tense hook.
+- "estimatedMinutes": a plausible playtime (30-60).
+- "tags": 3-5 short genre tags.
+- "victim": name, age, occupation, and a one-sentence dossier description.
+- Document fileNumbers: plausible bureau codes (e.g. CR-3301, INT-3302, LDR-3304).
+- Document "content": each 150-400 words of typed period-appropriate report text (markdown allowed), rich enough to play; doc-6 is the sealed smoking gun.
+- "initialStage": 1 for doc-1…doc-5, 2 for doc-6.
+- Stage 1 "unlocksEvidenceIds": []; Stage 2 "unlocksEvidenceIds": ["doc-6"].
+- Stage 2 rubric "targetCulprit": the exact killer name.
+
+===== 2026-09-23T03:12:04.624Z | attempt 1/2 — raw LLM response (579 chunks) =====
+{
+  "id": "1920s-nile-cruise",
+  "title": "The Minuet at Minia",
+  "synopsis": "A celebrated antiquities dealer is found dead on a Nile steamship, his brandy glass still warm and its ice cube long melted. A rival's alibi chimes with the bar clock, but the ship's log and the coroner's measurements refuse to ring true. Somewhere in the minuet of the night, a poisoned cube turns a relic into a coffin.",
+  "estimatedMinutes": 45,
+  "tags": [
+    "1920s",
+    "Nile",
+    "poison",
+    "whodunit",
+    "steamer"
+  ],
+  "victim": {
+    "name": "Sir Edward Cavendish",
+    "age": 58,
+    "occupation": "antiquities dealer",
+    "dossier": "A collector of dubious relics and a sharper of sharper men; his last week on the Nile was spent haggling over a Ptolemaic amulet."
+  },
+  "documents": [
+    {
+      "id": "doc-1",
+      "fileNumber": "CR-3301",
+      "content": "Coroner's and Forensic Report, S.S. Minnehaha, 14 October 1924. The body of Sir Edward Cavendish, aged 58, was examined in stateroom No. 7 at 10:20 p.m. Cause of death: potassium cyanide. The stomach contained brandy, 100 ml, and a clear liquid totalling 122 ml in the tumbler found on the desk. A standard bar ice cube of 25 ml had been ordered with the brandy at 8:15 p.m.; the glass shows the fill line at 100 ml and a final volume of 122 ml, proving the cube had fully melted. In a cabin at 32 C, such a cube melts in 20-30 minutes. Cyanide concentration in the blood is consistent with death between 8:50 and 9:00 p.m. The tumbler contained no intact ice at 9:40, when the body was found. Any claim that the ice was still present at 9:10 is physically impossible. The decanter was half full and unpoisoned. The poison was therefore in the tumbler or its ice cube, not the decanter. The almond odor was faint in the glass and absent from the decanter. No struggle. The victim's watch was in his pocket, set to 9:02. The report concludes that the fatal dose entered the victim's system after the 8:20 p.m. drink and before 9:00 p.m.",
+      "initialStage": 1
+    },
+    {
+      "id": "doc-2",
+      "fileNumber": "INT-3302",
+      "content": "Interrogation of Mr. Amos Quill, head steward, 15 October 1924. Q: Where were you between 8:00 and 9:30? A: In the engine room, checking the bilge pump, then in the steward's pantry. Q: Did you serve brandy to No. 7? A: No. The gentleman ordered in the bar. I only opened the cabin door at 9:40 on the chief officer's order. Q: Your hands were stained with a new brass polish. A: Yes, it contains an almond-scented solvent. I was polishing the silver in the pantry. Q: The victim accused you of stealing a papyrus from the ship's library. A: He accused me in a fit of temper. The library ledger shows the papyrus was in my cabin because I had borrowed it legally. Q: Why did you delay reporting the body? A: I did not delay. I found him at 9:40 and ran immediately. Q: You are known to owe money to a gambler at Luxor. A: Sir Edward's brother paid my debt in full at Luxor; the bank ledger is in my cabin. I had no motive and no access to the bar tumbler.",
+      "initialStage": 1
+    },
+    {
+      "id": "doc-3",
+      "fileNumber": "INT-3303",
+      "content": "Interrogation of Mr. Lucian Vale, passenger and dealer, 15 October 1924. Q: Where were you at 9:10 p.m.? A: In the bar. Sir Edward was with me, complaining of the heat. He still had his brandy, and the ice cube was large and clear. Q: The bar ledger says you left at 8:22. A: I returned at 9:05. The ledger is wrong; I never closed my tab. Q: Sir Edward's body was found in his cabin. A: He went back for his spectacles and never came to the bar again. I last saw him at 9:10, alive and well. Q: Did you enter his cabin? A: Never. I had no key. Q: You are a rival dealer in antiquities. A: I am. Sir Edward and I had a commercial disagreement over the Ptolemaic amulet. Q: Did you purchase chemicals recently? A: Only photographic fixer in Luxor, nothing else. Q: The coroner says the ice cube could not have been intact at 9:10. A: Then your coroner is a fool. Q: The barman saw your hand at the tumbler at 8:17. A: I was offering him a second cube from the bar. Nothing more.",
+      "initialStage": 1
+    },
+    {
+      "id": "doc-4",
+      "fileNumber": "LOG-3304",
+      "content": "S.S. Minnehaha bar and dispatch log, 14 October 1924, certified by Chief Engineer H. Marlow and Barman F. Dreyer. 8:12 p.m. No. 7 ordered one tumbler of brandy, 100 ml, with one standard ice cube. 8:14 p.m. Mr. Lucian Vale at the bar. 8:15 p.m. Tumbler prepared; the ice cube was placed in the glass by the barman. 8:17 p.m. Mr. Vale and Mr. Cavendish spoke briefly; the barman observed Mr. Vale's hand at the tumbler. 8:20 p.m. Mr. Cavendish left the bar carrying the tumbler; cabin No. 7 door bolted from inside according to the latch register. 8:22 p.m. Mr. Vale left the bar; his tab was closed and initialed. 8:45 p.m. Cabin temperature recorded at 32 C; a control ice cube of the same size in a similar glass melted in 24 minutes. 9:05 p.m. No bar entry for Mr. Vale. 9:10 p.m. No entry for Mr. Cavendish; cabin latch register shows No. 7 bolted. 9:40 p.m. Chief officer entered No. 7 after steward Quill's report. 10:00 p.m. Bar and cabin logs sealed. Note: the tumbler fill line and final liquid volume were recorded by the barman at 9:45.",
+      "initialStage": 1
+    },
+    {
+      "id": "doc-5",
+      "fileNumber": "CS-3305",
+      "content": "Crime Scene and Witness Record, stateroom No. 7, S.S. Minnehaha. Body found at 9:40 p.m. by Chief Officer Marlow. The tumbler lay on the desk, 122 ml liquid, no ice. The decanter was half full. A telegram from the Cairo Museum lay open: 'AMULET AUTHENTIC. SEND SPECIMEN TO ASWAN.' A key to No. 7 was found in the victim's pocket; no other key was present. Witness Mrs. Vivian Cavendish: 'I was in the card room from 7:45 to 10:00. At 8:12 I saw Lucian Vale and my husband at the bar. He looked pale, but my husband was laughing. I never left the card room; Mrs. Bell and Mr. Fothergill can confirm.' Witness Mr. Fothergill: 'Mrs. Cavendish was at our table the whole time. I saw Vale in the bar at 8:17, leaning toward Cavendish's glass.' Witness Steward Quill: 'I was in the pantry and engine room. I heard a thud at 9:35, went to No. 7, and found the gentleman dead.' The cabin was locked from inside; the window was fastened. No poison was found in the decanter. The only glass with cyanide was the victim's tumbler. The attached Luxor bank ledger and ship library ledger show Quill's debt paid and the papyrus legally borrowed.",
+      "initialStage": 1
+    },
+    {
+      "id": "doc-6",
+      "fileNumber": "SEA-3306",
+      "content": "Sealed Evidence, taken from cabin 11 of Mr. Lucian Vale on 16 October 1924. Items: 1. A glass vial, half full of a clear liquid, labelled 'K.C.N.'; laboratory comparison matches potassium cyanide in the victim's tumbler. 2. A chemist's receipt from the Luxor pharmacy of M. Rost, dated 12 October 1924: 'Potassium cyanide, 5 g, for photographic fixing, L. Vale (alias Lucian Vale)'. 3. A folded letter in the victim's hand, unsigned, reading: 'I have the casting notes and the chemist's account. At Aswan I will show the museum that the Ptolemaic amulet is a modern casting by Lucian Vale and that he bought prussic acid for a poisoned drink. The Nile will keep his secret no longer.' 4. A torn note in Vale's hand: 'The cube goes in at the bar. Cavendish drinks in the cabin. He dies before the minuet ends.' 5. A wet chamois cloth, tested positive for cyanide. The sealed bundle proves purchase, means, and motive.",
+      "initialStage": 2
+    }
+  ],
+  "stages": [
+    {
+      "stage": 1,
+      "name": "The Melted Minuet",
+      "requiredClueIds": [
+        "doc-1",
+        "doc-3",
+        "doc-4"
+      ],
+      "unlocksEvidenceIds": [],
+      "acceptedKeywords": [
+        "lucian vale",
+        "ice cube",
+        "melt time",
+        "bar log",
+        "9:10",
+        "false alibi",
+        "cyanide",
+        "impossible"
+      ],
+      "verificationRubric": {
+        "targetCulprit": "not-applicable",
+        "expectedFinding": "Lucian Vale's 9:10 alibi is impossible because the standard ice cube would have melted by 8:40-8:45 and the victim was already dead."
+      }
+    },
+    {
+      "stage": 2,
+      "name": "The Sealed Cube",
+      "requiredClueIds": [
+        "doc-1",
+        "doc-2",
+        "doc-3",
+        "doc-4",
+        "doc-5",
+        "doc-6"
+      ],
+      "unlocksEvidenceIds": [
+        "doc-6"
+      ],
+      "acceptedKeywords": [
+        "lucian vale",
+        "cyanide",
+        "ice cube",
+        "forgery",
+        "ptolemaic amulet",
+        "chemist receipt",
+        "motive",
+        "smoking gun"
+      ],
+      "verificationRubric": {
+        "targetCulprit": "Lucian Vale",
+        "expectedMethod": "He poisoned a standard ice cube and placed it in the victim's brandy at the bar.",
+        "expectedMotive": "To prevent Sir Edward from exposing his forgery of the Ptolemaic amulet at Aswan."
+      }
+    }
+  ]
+}
+
+===== 2026-09-23T03:12:04.629Z | attempt 1/2 — validation issues =====
+- difficulty: Invalid option: expected one of "Easy"|"Medium"|"Hard"
+- suspects: Invalid input: expected array, received undefined
+- documents.0.title: Invalid input: expected string, received undefined
+- documents.0.category: Invalid option: expected one of "forensic"|"interrogation"|"evidence"|"timeline"
+- documents.0.classification: Invalid option: expected one of "CONFIDENTIAL"|"UNRESTRICTED"
+- documents.1.title: Invalid input: expected string, received undefined
+- documents.1.category: Invalid option: expected one of "forensic"|"interrogation"|"evidence"|"timeline"
+- documents.1.classification: Invalid option: expected one of "CONFIDENTIAL"|"UNRESTRICTED"
+- documents.2.title: Invalid input: expected string, received undefined
+- documents.2.category: Invalid option: expected one of "forensic"|"interrogation"|"evidence"|"timeline"
+- documents.2.classification: Invalid option: expected one of "CONFIDENTIAL"|"UNRESTRICTED"
+- documents.3.title: Invalid input: expected string, received undefined
+- documents.3.category: Invalid option: expected one of "forensic"|"interrogation"|"evidence"|"timeline"
+- documents.3.classification: Invalid option: expected one of "CONFIDENTIAL"|"UNRESTRICTED"
+- documents.4.title: Invalid input: expected string, received undefined
+- documents.4.category: Invalid option: expected one of "forensic"|"interrogation"|"evidence"|"timeline"
+- documents.4.classification: Invalid option: expected one of "CONFIDENTIAL"|"UNRESTRICTED"
+- documents.5.title: Invalid input: expected string, received undefined
+- documents.5.category: Invalid option: expected one of "forensic"|"interrogation"|"evidence"|"timeline"
+- documents.5.classification: Invalid option: expected one of "CONFIDENTIAL"|"UNRESTRICTED"
+- stages.0.stageNumber: Invalid input: expected number, received undefined
+- stages.0.title: Invalid input: expected string, received undefined
+- stages.0.objective: Invalid input: expected string, received undefined
+- stages.0.description: Invalid input: expected string, received undefined
+- stages.0.verificationRubric.criticalContradiction: Invalid input: expected string, received undefined
+- stages.0.verificationRubric.requiredClueIds: Invalid input: expected array, received undefined
+- stages.0.verificationRubric.acceptedKeywords: Invalid input: expected array, received undefined
+- stages.1.stageNumber: Invalid input: expected number, received undefined
+- stages.1.title: Invalid input: expected string, received undefined
+- stages.1.objective: Invalid input: expected string, received undefined
+- stages.1.description: Invalid input: expected string, received undefined
+- stages.1.verificationRubric.criticalContradiction: Invalid input: expected string, received undefined
+- stages.1.verificationRubric.requiredClueIds: Invalid input: expected array, received undefined
+- stages.1.verificationRubric.acceptedKeywords: Invalid input: expected array, received undefined
+
+===== 2026-09-23T03:16:05.830Z | attempt 2/2 — raw LLM response (666 chunks) =====
+{
+  "id": "1920s-nile-cruise",
+  "title": "The Serpent of the Nile",
+  "synopsis": "A celebrated antiquities dealer is found dead on the SS Nefertiti, his brandy glass broken and a famous amulet missing. Three passengers and the captain each carry a motive, but the Nile's rising water and the ship's logs will expose the lie that killed him.",
+  "difficulty": "Medium",
+  "estimatedMinutes": 45,
+  "tags": [
+    "murder-mystery",
+    "1920s",
+    "nile-cruise",
+    "whodunit"
+  ],
+  "victim": {
+    "name": "Lord Havelock Crane",
+    "age": 54,
+    "occupation": "Antiquities dealer",
+    "dossier": "A wealthy and ruthless collector of Egyptian antiquities, several of whose 'finds' were stolen or forged."
+  },
+  "suspects": [
+    "Dr. Elias Vane",
+    "Miss Clara Whitmore",
+    "Captain Amos Reed"
+  ],
+  "documents": [
+    {
+      "id": "doc-1",
+      "fileNumber": "CR-3301",
+      "title": "Coroner's Report: Lord Havelock Crane",
+      "category": "forensic",
+      "classification": "CONFIDENTIAL",
+      "initialStage": 1,
+      "content": "CR-3301 - Coroner's Report, Aswan District, 15 October 1924.\nThe body of Lord Havelock Crane, 54, was recovered at 22:10 in the master cabin of SS Nefertiti, moored on the Nile between Qena and Luxor. Cause of death: aconitine poisoning, estimated 45-90 minutes after ingestion. The glass of brandy on the cabinet still contained a residue consistent with aconitum tincture. Liver temperature and gastric contents place ingestion between 21:05 and 21:30 and death between 22:00 and 22:20. No defensive wounds; the glass was broken, and the bronze serpent amulet from the victim's desk was missing. A letter in the safe, addressed 'To the Aswan Police', read: 'If anything befalls me, the Serpent of Khnum is a forgery and Dr. Vane is the forger.' The letter was unsigned but in Crane's hand. The aconitine dose was large, deliberate, and not the type found in the ship's general medical chest. The amulet's absence suggests a theft committed during the fatal interval. I conclude homicide."
+    },
+    {
+      "id": "doc-2",
+      "fileNumber": "INT-3302",
+      "title": "Interrogation: Dr. Elias Vane",
+      "category": "interrogation",
+      "classification": "CONFIDENTIAL",
+      "initialStage": 1,
+      "content": "INT-3302 - Interrogation of Dr. Elias Vane, 16 October 1924.\nQ: Where were you between 20:00 and 22:00?\nA: I left the Nefertiti for Qena at 20:15 by the ship's tender. I met a dealer at the jetty and remained on shore until 21:25. The dockmaster, Hassan, can swear he saw me at 21:10 when I asked for a lamp. I returned by the same tender and was in my cabin by 21:40.\nQ: The ship cast off at 20:45.\nA: The tender followed. I had arranged it with the bosun.\nQ: You argued with Lord Crane over the Serpent of Khnum.\nA: I told him the cartouche was a modern forgery. He threatened to expose me. I never harmed him.\nQ: Aconitum tincture was found in your cabin.\nA: I purchased it at Aswan for my own heart. I have carried it for years.\nInvestigator's note: Vane is calm, but his account of a 21:10 shore sighting is central to his alibi. His statement that the tender 'followed' is not supported by any tender entry yet seen."
+    },
+    {
+      "id": "doc-3",
+      "fileNumber": "INT-3303",
+      "title": "Interrogation: Miss Clara Whitmore",
+      "category": "interrogation",
+      "classification": "CONFIDENTIAL",
+      "initialStage": 1,
+      "content": "INT-3303 - Interrogation of Miss Clara Whitmore, 16 October 1924.\nQ: Why were you carrying the brandy decanter at 21:00?\nA: Lord Crane sent for it from his cabin. He had a headache and said, 'Bring the amber one, not the watered port.' I returned it empty at 21:05.\nQ: You are said to have altered the telegram in his safe.\nA: I corrected the address of his daughter. The original line was smudged. I used his pen and he approved it earlier that evening. The butler can confirm he dictated the message to me at 19:40.\nQ: Did you see Dr. Vane?\nA: He entered the cabin at 21:05 while I was still in the doorway. He bowed and said he had come to inspect the serpent amulet. I left and heard the door latch. I saw no one else until Captain Reed at 22:10.\nQ: Captain Reed owes debts to Lord Crane.\nA: He has gambling debts, yes, but he is the captain. I would not guess at motives.\nNote: Whitmore's account matches the butler's log and the telegram form found in the safe. Her conduct remains nervous, but the explanation is consistent."
+    },
+    {
+      "id": "doc-4",
+      "fileNumber": "LDR-3304",
+      "title": "SS Nefertiti Tender and Movement Log",
+      "category": "timeline",
+      "classification": "CONFIDENTIAL",
+      "initialStage": 1,
+      "content": "LDR-3304 - SS Nefertiti Movement and Tender Log, 15 October 1924.\n20:00 Ship at Qena jetty. Tender No. 2 made ready.\n20:05 Tender No. 2 leaves ship with bosun and two passengers (names: C. Whitmore, A. Reed).\n20:35 Tender No. 2 returns to ship.\n20:45 Ship casts off Qena. Engine telegraph: ahead slow, then ahead full at 20:50.\n21:00 River current 2.1 knots; ship's speed 6.4 knots; distance from Qena 4.8 km.\n21:10 Position off the Qena temple causeway; no tender afloat. Wireless operator received the Aswan time signal at 21:00 sharp.\n21:20 Bridge log: Captain Reed at the wheel; Dr. Vane seen on the promenade deck by the steward.\n21:30 Wireless room: operator alone; no dispatches until 22:15, when Captain Reed sends: 'Medical assistance required, master cabin.'\n21:45 Engine telegraph: stop, then astern slow.\n22:10 Body discovered.\nThe tender log shows no tender departed after 20:35. The ship's position at 21:10 makes any shore sighting at the Qena jetty impossible. The 21:20 bridge entry independently places Vane aboard, though he claims to have been ashore until 21:25."
+    },
+    {
+      "id": "doc-5",
+      "fileNumber": "CSE-3305",
+      "title": "Crime Scene and Butler's Statement",
+      "category": "evidence",
+      "classification": "CONFIDENTIAL",
+      "initialStage": 1,
+      "content": "CSE-3305 - Crime Scene and Butler's Statement, SS Nefertiti.\nButler Joseph Marsh: 'At 20:55 I saw Dr. Vane on the promenade deck. At 21:05 he entered the master cabin. At 21:20 he emerged, took his hat from the hall, and said he was going ashore. I told him the tender had returned and the ship was under way. He looked pale and left by the forward stair. At 21:35 Miss Whitmore came to me and said Lord Crane was ill. I went up and found the door locked. Captain Reed broke it open at 22:10.'\nScene: The master cabin door was locked from inside by a spring latch; no forced entry. The brandy glass was broken; the decanter was empty. The bronze serpent amulet was missing from the desk. Aconitine residue was in the glass. Captain Reed's master key was found in the cabin, but Reed states he used it to open the door after the butler called. The steward's deck watch confirms Vane on the promenade at 21:20. The library card log shows Vane and Whitmore checked out two books at 19:30, but neither was in the library after 20:00; the steward's watch covers the critical hours. The butler's account explains Whitmore's brandy errand and Reed's key."
+    },
+    {
+      "id": "doc-6",
+      "fileNumber": "SEA-3306",
+      "title": "Sealed Apothecary Exhibit",
+      "category": "evidence",
+      "classification": "CONFIDENTIAL",
+      "initialStage": 2,
+      "content": "SEA-3306 - Sealed Exhibit, Aswan Police, opened 17 October 1924.\nThe sealed packet prepared by the Aswan police contains:\n1. Ledger page from the Aswan Apothecary, 12 October 1924: 'Dr. E. Vane - aconitum tincture, one ounce, no prescription, signed E. Vane.'\n2. The glass vial taken from Vane's cabin, labelled 'Aconitum - E. Vane'. Laboratory comparison: the vial residue is identical in concentration to the aconitine found in the victim's brandy glass.\n3. The apothecary's affidavit: 'I sold no aconitum to Dr. Vane on 12 October for his heart complaint. The entry is for a full ounce, a quantity never sold for personal use. The label on the vial was applied by my assistant at the counter.'\n4. A torn scrap of Vane's notebook, found in the vial's wrapper: 'The serpent is mine. The old man dies tonight. Thirty drops in the amber glass.'\nThe magistrate's endorsement: 'Opened in the presence of the captain, the butler, and the investigator. No objection taken.' This exhibit fixes the poison's source, the killer's access, and the intent."
+    }
+  ],
+  "stages": [
+    {
+      "stageNumber": 1,
+      "title": "The Tender That Never Sailed",
+      "objective": "Break the false alibi by matching the claimed shore sighting to the tender and ship movement logs.",
+      "description": "Dr. Vane says he was ashore at Qena until 21:25 and was seen at the jetty at 21:10. The logs show the tender returned at 20:35, the ship cast off at 20:45, and the vessel was 4.8 km downstream at 21:10. The steward also saw Vane on the promenade at 21:20.",
+      "unlocksEvidenceIds": [],
+      "verificationRubric": {
+        "criticalContradiction": "Vane's claimed 21:10 Qena jetty sighting is impossible because the tender log records no tender after 20:35 and the ship's position at 21:10 was 4.8 km downstream.",
+        "requiredClueIds": [
+          "doc-2",
+          "doc-4"
+        ],
+        "acceptedKeywords": [
+          "vane",
+          "alibi",
+          "tender",
+          "qena",
+          "20:45",
+          "21:10",
+          "impossible",
+          "false timeline"
+        ]
+      }
+    },
+    {
+      "stageNumber": 2,
+      "title": "The Apothecary's Ledger",
+      "objective": "Name the true culprit, method, and motive using the sealed apothecary exhibit.",
+      "description": "The coroner fixed aconitine in the brandy. Vane's broken alibi placed him aboard and in the victim's cabin at 21:05. The sealed exhibit proves he purchased a full ounce of aconitum tincture, that the vial in his cabin matches the victim's glass, and that the victim intended to expose the Serpent of Khnum forgery. Vane poisoned the brandy to silence Crane and seize the amulet.",
+      "unlocksEvidenceIds": [
+        "doc-6"
+      ],
+      "verificationRubric": {
+        "criticalContradiction": "Vane claims the aconitine was a personal heart remedy, but the apothecary ledger and vial residue show a full-ounce purchase with no prescription and a residue identical to the victim's glass.",
+        "targetCulprit": "Dr. Elias Vane",
+        "requiredClueIds": [
+          "doc-1",
+          "doc-2",
+          "doc-4",
+          "doc-5",
+          "doc-6"
+        ],
+        "acceptedKeywords": [
+          "dr. elias vane",
+          "vane",
+          "aconitine",
+          "apothecary",
+          "forgery",
+          "serpent of khnum",
+          "brandy",
+          "whitmore",
+          "reed"
+        ]
+      }
+    }
+  ]
+}
+
+===== 2026-09-23T03:16:05.831Z | attempt 2/2 — validation issues =====
+- suspects.0: Invalid input: expected object, received string
+- suspects.1: Invalid input: expected object, received string
+- suspects.2: Invalid input: expected object, received string

@@ -24,7 +24,7 @@ import { z } from "zod";
 const DEFAULT_LOCAL_BASE_URL = "https://chatapi.hglooweb.com/v1";
 const DEFAULT_MODEL = "gpt-4o-mini";
 const LLM_TIMEOUT_MS = 300_000;
-const MAX_ATTEMPTS = 2; // initial + one auto-repair retry
+const MAX_ATTEMPTS = 3; // initial + up to two auto-repair retries
 
 /** Every run appends to this file: prompts are stable, so it holds the raw
  * LLM responses (think blocks included) and validation outcomes per attempt. */
@@ -72,7 +72,7 @@ const stageSchema = z.object({
   verificationRubric: rubricSchema,
 });
 
-const generatedCaseSchema = z
+export const generatedCaseSchema = z
   .object({
     id: z.string().min(2),
     title: z.string().min(3),
@@ -168,7 +168,39 @@ Follow this mandatory backwards construction procedure:
    - doc-5: Crime Scene / Butler / Witness record.
    - doc-6: Sealed Evidence (Stage 2 unlock) revealing the smoking gun.
 
-OUTPUT STRICT JSON ONLY MATCHING THE GIVEN SCHEMA. No prose, no markdown fences.
+OUTPUT STRICT JSON ONLY, using EXACTLY the field names and enum values of this schema. No prose, no markdown fences, no renamed or omitted fields:
+{
+  "id": "<slug>",
+  "title": "string",
+  "synopsis": "2-3 sentence hook",
+  "difficulty": "Easy | Medium | Hard",
+  "estimatedMinutes": 45,
+  "tags": ["string", "string"],
+  "victim": { "name": "string", "age": 0, "occupation": "string", "description": "one-sentence dossier" },
+  "suspects": [{ "name": "string", "role": "string" }, { "name": "string", "role": "string" }, { "name": "string", "role": "string" }],
+  "documents": [{
+    "id": "doc-1 | doc-2 | ... | doc-6",
+    "title": "short file title",
+    "category": "forensic | interrogation | evidence | timeline",
+    "fileNumber": "e.g. CR-3301",
+    "classification": "CONFIDENTIAL | UNRESTRICTED",
+    "content": "150-400 words of typed report text",
+    "initialStage": 1 | 2
+  }],
+  "stages": [{
+    "stageNumber": 1 | 2,
+    "title": "string",
+    "objective": "string",
+    "description": "string",
+    "unlocksEvidenceIds": ["doc-x"],
+    "verificationRubric": {
+      "targetCulprit": "EXACT suspect name — stage 2 only; omit this field on stage 1",
+      "criticalContradiction": "the one irrefutable clash, stated precisely",
+      "requiredClueIds": ["doc-x"],
+      "acceptedKeywords": ["5-10 lowercase terms a correct deduction should contain"]
+    }
+  }]
+}
 Ensure all requiredClueIds and unlocksEvidenceIds match actual document IDs (doc-1 to doc-6).
 Ensure both stages include acceptedKeywords (5-10 terms) for deterministic offline evaluation.
 Stage 2's verificationRubric.targetCulprit must be the exact name of one suspect.`;
@@ -193,7 +225,7 @@ Write the complete case JSON now.
 }
 
 /** Strip reasoning-model think blocks, unwrap code fences, extract JSON leniently. */
-function extractJson(raw: string): unknown {
+export function extractJson(raw: string): unknown {
   const cleaned = raw
     .replace(new RegExp("<" + "think" + "[\\s\\S]*?<" + "/think" + ">", "gi"), "")
     .trim();
@@ -207,6 +239,166 @@ function extractJson(raw: string): unknown {
     if (start === -1 || end <= start) throw new Error("no JSON object in LLM response");
     return JSON.parse(candidate.slice(start, end + 1));
   }
+}
+
+/** Category heuristic from a document's id / file number / title. */
+function guessCategory(doc: Record<string, unknown>): "forensic" | "interrogation" | "evidence" | "timeline" {
+  const code = `${doc.id ?? ""} ${doc.fileNumber ?? ""} ${doc.title ?? ""}`.toUpperCase();
+  if (/\b(CR|COR|AUTO|TOX)\b/.test(code)) return "forensic";
+  if (/\bINT\b|INTERROG|STATEMENT/.test(code)) return "interrogation";
+  if (/\b(LOG|LDR|LEDGER|DISPATCH|TOLL|WX)\b/.test(code)) return "timeline";
+  return "evidence";
+}
+
+/** Fallback document title: first meaningful line of the report body. */
+function titleFromContent(content: string): string {
+  const line = content
+    .split("\n")
+    .map((l) => l.trim())
+    .find((l) => l.length > 3 && !/^[#*>|\-]/.test(l));
+  return (line ?? "Untitled report").replace(/\s{2,}.*$/, "").slice(0, 60);
+}
+
+/**
+ * Repair known LLM shape drift before strict validation. Each branch fixes a
+ * real observed deviation (see case-gen-debug.log), so the auto-repair loop
+ * spends its retries on content, not field names.
+ */
+export function normalizeCase(raw: unknown, requestedDifficulty: string): unknown {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return raw;
+  const c = { ...(raw as Record<string, unknown>) };
+
+  // difficulty: case-insensitive match, falling back to the CLI request.
+  const want = requestedDifficulty.toLowerCase();
+  const d = String(c.difficulty ?? "").trim().toLowerCase();
+  const matched = ["easy", "medium", "hard"].find((x) => x === d);
+  c.difficulty = matched
+    ? matched[0].toUpperCase() + matched.slice(1)
+    : (want === "easy" ? "Easy" : want === "hard" ? "Hard" : "Medium");
+
+  // Light scalar guards (the model omits these rarely but it happens).
+  if (typeof c.id !== "string" || c.id.trim().length < 2) c.id = "untitled-case"; // main() overwrites with the slug
+  if (typeof c.title !== "string" || c.title.trim().length < 3) c.title = "Untitled Investigation";
+  if (typeof c.synopsis !== "string" || c.synopsis.trim().length < 20) {
+    c.synopsis = "A new file surfaces in the archives — someone died, and the records disagree about how.";
+  }
+  if (!Array.isArray(c.tags) || c.tags.filter((t) => typeof t === "string" && t.length >= 2).length < 2) {
+    c.tags = ["Noir", "Mystery"];
+  }
+  const em = Number(c.estimatedMinutes);
+  if (!Number.isInteger(em) || em < 20 || em > 90) c.estimatedMinutes = 45;
+
+  // victim: dossier→description alias; fill required scalars.
+  const v = { ...((c.victim ?? {}) as Record<string, unknown>) };
+  if (v.dossier !== undefined) {
+    if (v.description === undefined) v.description = v.dossier;
+    delete v.dossier;
+  }
+  if (typeof v.description !== "string" || !v.description) v.description = "No dossier recovered.";
+  if (typeof v.name !== "string" || !v.name) v.name = "Unknown Victim";
+  if (!Number.isFinite(Number(v.age))) v.age = 50;
+  else v.age = Number(v.age);
+  if (typeof v.occupation !== "string" || !v.occupation) v.occupation = "Occupation unknown";
+  c.victim = v;
+
+  // stages: key renames, hoisted rubric fields, expected* → criticalContradiction,
+  // placeholder targetCulprit dropped (it would make a stage unpassable in the judge).
+  const stages: Record<string, unknown>[] = Array.isArray(c.stages)
+    ? (c.stages as unknown[]).map((s) => {
+        const st = { ...((s ?? {}) as Record<string, unknown>) };
+        if (st.stageNumber === undefined && st.stage !== undefined) st.stageNumber = st.stage;
+        delete st.stage;
+        if (typeof st.title !== "string" || !st.title) st.title = (typeof st.name === "string" && st.name) || "Untitled stage";
+        delete st.name;
+        if (typeof st.objective !== "string" || !st.objective) st.objective = st.title as string;
+        if (typeof st.description !== "string" || !st.description) st.description = st.objective as string;
+        if (!Array.isArray(st.unlocksEvidenceIds)) st.unlocksEvidenceIds = [];
+        const rubric: Record<string, unknown> = {
+          ...((st.verificationRubric ?? {}) as Record<string, unknown>),
+        };
+        if (!rubric.criticalContradiction) {
+          const parts = [
+            rubric.expectedFinding, st.expectedFinding,
+            rubric.expectedMethod, st.expectedMethod,
+            rubric.expectedMotive, st.expectedMotive,
+          ].filter((p): p is string => typeof p === "string" && p.trim().length > 0);
+          rubric.criticalContradiction = parts.length ? parts.join(" ") : st.objective as string;
+          for (const k of ["expectedFinding", "expectedMethod", "expectedMotive"]) delete rubric[k];
+        }
+        if (!Array.isArray(rubric.requiredClueIds)) {
+          rubric.requiredClueIds = Array.isArray(st.requiredClueIds) ? st.requiredClueIds : [];
+        }
+        if (!Array.isArray(rubric.acceptedKeywords)) {
+          rubric.acceptedKeywords = Array.isArray(st.acceptedKeywords) ? st.acceptedKeywords : [];
+        }
+        delete st.requiredClueIds;
+        delete st.acceptedKeywords;
+        if (
+          typeof rubric.targetCulprit === "string" &&
+          /^(not[ -]?applicable|none|n\/a|tbd|unknown)$/i.test(rubric.targetCulprit.trim())
+        ) {
+          delete rubric.targetCulprit;
+        }
+        st.verificationRubric = rubric;
+        return st;
+      })
+    : [];
+  stages.forEach((st, i) => {
+    if (typeof st.stageNumber !== "number" || !Number.isInteger(st.stageNumber) || st.stageNumber < 1) {
+      st.stageNumber = i + 1;
+    }
+  });
+  c.stages = stages;
+
+  // documents: fill title/category/classification/fileNumber/initialStage.
+  const docs: Record<string, unknown>[] = Array.isArray(c.documents)
+    ? (c.documents as unknown[]).map((d) => ({ ...((d ?? {}) as Record<string, unknown>) }))
+    : [];
+  docs.forEach((doc, i) => {
+    if (typeof doc.id !== "string" || !/^doc-\d+$/.test(doc.id)) doc.id = `doc-${i + 1}`;
+    if (typeof doc.title !== "string" || doc.title.trim().length < 3) {
+      doc.title = titleFromContent(typeof doc.content === "string" ? doc.content : "");
+    }
+    if (!["forensic", "interrogation", "evidence", "timeline"].includes(doc.category as string)) {
+      doc.category = guessCategory(doc);
+    }
+    if (!["CONFIDENTIAL", "UNRESTRICTED"].includes(doc.classification as string)) {
+      doc.classification = "CONFIDENTIAL";
+    }
+    if (typeof doc.fileNumber !== "string" || !doc.fileNumber) doc.fileNumber = `REC-${4400 + i}`;
+    let n = Number(doc.initialStage);
+    if (!Number.isInteger(n) || n < 1) n = String(doc.id) === "doc-6" ? 2 : 1;
+    if (stages.length > 0 && n > stages.length) n = stages.length;
+    doc.initialStage = n;
+  });
+  c.documents = docs;
+
+  // suspects: strings→objects, missing name/role filled, absent list
+  // synthesized from the final stage's targetCulprit.
+  const lastRubric = stages[stages.length - 1]?.verificationRubric as Record<string, unknown> | undefined;
+  const culprit = typeof lastRubric?.targetCulprit === "string" ? lastRubric.targetCulprit : "";
+  let suspects: Array<{ name: string; role: string }> = Array.isArray(c.suspects)
+    ? (c.suspects as unknown[]).map((s) => {
+        if (typeof s === "string") return { name: s, role: "No role on file — see interrogations" };
+        const o = { ...((s ?? {}) as Record<string, unknown>) };
+        return {
+          name: typeof o.name === "string" && o.name ? o.name : "Unknown suspect",
+          role: typeof o.role === "string" && o.role ? o.role : "No role on file — see interrogations",
+        };
+      })
+    : [];
+  if (suspects.length === 0 && culprit) suspects = [{ name: culprit, role: "Prime suspect" }];
+  while (suspects.length < 3) {
+    suspects.push({ name: `Suspect ${String.fromCharCode(65 + suspects.length)}`, role: "Identity unrecovered" });
+  }
+  if (culprit && !suspects.some((s) => s.name === culprit)) {
+    const pad = suspects.findIndex((s) => s.name.startsWith("Suspect "));
+    if (pad !== -1) suspects[pad] = { name: culprit, role: "Prime suspect" };
+    else suspects.push({ name: culprit, role: "Prime suspect" });
+  }
+  c.suspects = suspects.slice(0, 3);
+
+  return c;
 }
 
 async function generateCase(client: OpenAI, model: string, theme: string, difficulty: string, slug: string) {
@@ -247,7 +439,8 @@ async function generateCase(client: OpenAI, model: string, theme: string, diffic
     if (process.env.GEN_VERBOSE) console.log(fullContent);
 
     const parsed = extractJson(fullContent);
-    const result = generatedCaseSchema.safeParse(parsed);
+    const normalized = normalizeCase(parsed, difficulty);
+    const result = generatedCaseSchema.safeParse(normalized);
     if (result.success) {
       logDebug(`attempt ${attempt}/${MAX_ATTEMPTS} — validation`, "PASSED");
       return result.data;
@@ -258,9 +451,10 @@ async function generateCase(client: OpenAI, model: string, theme: string, diffic
       .join("\n");
     console.error(`Validation failed (attempt ${attempt}/${MAX_ATTEMPTS}):\n${issues}`);
     logDebug(`attempt ${attempt}/${MAX_ATTEMPTS} — validation issues`, issues);
+    logDebug(`attempt ${attempt}/${MAX_ATTEMPTS} — normalized output`, JSON.stringify(normalized, null, 2));
     feedback = issues;
     if (attempt === MAX_ATTEMPTS) {
-      throw new Error("LLM output failed schema validation after auto-repair retry");
+      throw new Error("LLM output failed schema validation after auto-repair retries — raw responses and normalized output are in scripts/case-gen-debug.log");
     }
   }
   throw new Error("unreachable");
@@ -373,9 +567,13 @@ async function main() {
 `);
 }
 
-main().catch((err) => {
-  // Deliberately no process.exit(): letting the event loop drain cleanly avoids
-  // libuv UV_HANDLE_CLOSING assertions on Windows after a dropped socket.
-  console.error(`\n✖ Case generation failed: ${err instanceof Error ? err.message : String(err)}`);
-  process.exitCode = 1;
-});
+// Run only when invoked directly (npm run case:generate), not when imported
+// by an offline verifier.
+if (process.argv[1] && path.basename(process.argv[1]) === "generate-case.ts") {
+  main().catch((err) => {
+    // Deliberately no process.exit(): letting the event loop drain cleanly
+    // avoids libuv UV_HANDLE_CLOSING assertions on Windows after a dropped socket.
+    console.error(`\n✖ Case generation failed: ${err instanceof Error ? err.message : String(err)}`);
+    process.exitCode = 1;
+  });
+}
