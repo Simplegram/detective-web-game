@@ -150,9 +150,7 @@ function RoomShell({
     <main className="noir-bg flex min-h-screen flex-col">
       {/* Top bar */}
       <header className="border-b border-stone-800/80 bg-noir-900/80 backdrop-blur">
-          <div className="mx-auto max-w-6xl px-6 py-4">
-            <div className="flex flex-col items-center gap-x-6 gap-y-3 lg:grid lg:grid-cols-[1fr_auto_1fr]">
-              <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-6 gap-y-3 px-6 py-4">
           <Link href="/" className="font-type text-xs tracking-[0.25em] text-stone-500 uppercase transition hover:text-amber-300">
             ← Archives
           </Link>
@@ -171,75 +169,73 @@ function RoomShell({
               )}
             </p>
           </div>
-              </div>
 
-              <div className="flex flex-wrap items-center justify-center gap-2">
+          <div className="ml-auto flex flex-col items-end gap-2">
+            <PresenceBar players={sync.players} selfId={player.id} />
+            <div className="flex flex-wrap items-center gap-2">
 
-              {!caseClosed && (
-                <button
-                  type="button"
-                  onClick={() => setAccusationOpen(true)}
-                  className="flex items-center gap-2 rounded-md border-2 border-blood bg-blood/90 px-4 py-2 text-amber-50 shadow-[0_0_24px] shadow-blood/30 transition hover:bg-blood-bright"
-                >
-                  <Gavel className="size-4" />
-                  <span className="font-type text-xs font-bold tracking-[0.2em] uppercase">
-                    Submit theory / File accusation
-                  </span>
-                </button>
-              )}
-              <button
-                type="button"
-                onClick={() => setNotebookOpen((v) => !v)}
-                className="flex items-center gap-2 rounded-full border border-stone-700/70 bg-noir-850 px-3 py-1.5 text-stone-300 transition hover:border-amber-500/50 hover:text-amber-200"
-              >
-                <NotebookPen className="size-4 text-amber-400/80" />
-                <span className="relative inline-flex font-type text-xs tracking-[0.15em] uppercase">
-                  <span className="invisible">Shared notebook</span>
-                  <span className="absolute inset-0">
-                    {notebookOpen ? "Close notebook" : "Shared notebook"}
-                  </span>
-                </span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setCorkboardOpen((v) => !v)}
-                className={`flex items-center gap-2 rounded-full border px-3 py-1.5 transition ${
-                  corkboardOpen
-                    ? "border-amber-500/50 bg-noir-850 text-amber-200"
-                    : "border-stone-700/70 bg-noir-850 text-stone-300 hover:border-amber-500/50 hover:text-amber-200"
-                }`}
-              >
-                <Pin className="size-4 text-amber-400/80" />
-                <span className="relative inline-flex font-type text-xs tracking-[0.15em] uppercase">
-                  <span className="invisible">Hide corkboard</span>
-                  <span className="absolute inset-0">
-                    {corkboardOpen ? "Hide corkboard" : "Corkboard"}
-                  </span>
-                </span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setCaseLogOpen((v) => !v)}
-                className={`flex items-center gap-2 rounded-full border px-3 py-1.5 transition ${
-                  caseLogOpen
-                    ? "border-amber-500/50 bg-noir-850 text-amber-200"
-                    : "border-stone-700/70 bg-noir-850 text-stone-300 hover:border-amber-500/50 hover:text-amber-200"
-                }`}
-              >
-                <ClipboardList className="size-4 text-amber-400/80" />
-                <span className="relative inline-flex font-type text-xs tracking-[0.15em] uppercase">
-                  <span className="invisible">Close case log</span>
-                  <span className="absolute inset-0">
-                    {caseLogOpen ? "Close case log" : "Case log"}
-                  </span>
-                </span>
-              </button>
-            </div>
-              <div className="flex flex-wrap items-center justify-end gap-2">
-                <PresenceBar players={sync.players} selfId={player.id} />
-              </div>
-            </div>
-          </div>
+          {!caseClosed && (
+            <button
+              type="button"
+              onClick={() => setAccusationOpen(true)}
+              className="flex items-center gap-2 rounded-md border-2 border-blood bg-blood/90 px-4 py-2 text-amber-50 shadow-[0_0_24px] shadow-blood/30 transition hover:bg-blood-bright"
+            >
+              <Gavel className="size-4" />
+              <span className="font-type text-xs font-bold tracking-[0.2em] uppercase">
+                Submit theory / File accusation
+              </span>
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={() => setNotebookOpen((v) => !v)}
+            className="flex items-center gap-2 rounded-full border border-stone-700/70 bg-noir-850 px-3 py-1.5 text-stone-300 transition hover:border-amber-500/50 hover:text-amber-200"
+          >
+            <NotebookPen className="size-4 text-amber-400/80" />
+            <span className="relative inline-flex font-type text-xs tracking-[0.15em] uppercase">
+              <span className="invisible">Shared notebook</span>
+              <span className="absolute inset-0">
+                {notebookOpen ? "Close notebook" : "Shared notebook"}
+              </span>
+            </span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setCorkboardOpen((v) => !v)}
+            className={`flex items-center gap-2 rounded-full border px-3 py-1.5 transition ${
+              corkboardOpen
+                ? "border-amber-500/50 bg-noir-850 text-amber-200"
+                : "border-stone-700/70 bg-noir-850 text-stone-300 hover:border-amber-500/50 hover:text-amber-200"
+            }`}
+          >
+            <Pin className="size-4 text-amber-400/80" />
+            <span className="relative inline-flex font-type text-xs tracking-[0.15em] uppercase">
+              <span className="invisible">Hide corkboard</span>
+              <span className="absolute inset-0">
+                {corkboardOpen ? "Hide corkboard" : "Corkboard"}
+              </span>
+            </span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setCaseLogOpen((v) => !v)}
+            className={`flex items-center gap-2 rounded-full border px-3 py-1.5 transition ${
+              caseLogOpen
+                ? "border-amber-500/50 bg-noir-850 text-amber-200"
+                : "border-stone-700/70 bg-noir-850 text-stone-300 hover:border-amber-500/50 hover:text-amber-200"
+            }`}
+          >
+            <ClipboardList className="size-4 text-amber-400/80" />
+            <span className="relative inline-flex font-type text-xs tracking-[0.15em] uppercase">
+              <span className="invisible">Close case log</span>
+              <span className="absolute inset-0">
+                {caseLogOpen ? "Close case log" : "Case log"}
+              </span>
+            </span>
+          </button>
+        </div>
+      </div>
+        </div>
       </header>
 
       {/* Settings — pinned top-right of the viewport: sound + ambient rain */}
