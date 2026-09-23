@@ -82,6 +82,46 @@ function clamp(v: number, min: number, max: number) {
   return Math.min(max, Math.max(min, v));
 }
 
+/**
+ * Undirected yarn connections as deduplicated edges. The stable key
+ * orders the two pin IDs lexicographically, so A→B and B→A collapse.
+ */
+export function getUniqueConnections(
+  pins: CorkboardPin[],
+): Array<{ fromId: string; toId: string; key: string }> {
+  const seen = new Set<string>();
+  const edges: Array<{ fromId: string; toId: string; key: string }> = [];
+  for (const pin of pins) {
+    for (const otherId of pin.connectedTo ?? []) {
+      if (otherId === pin.id) continue;
+      const key = pin.id < otherId ? `${pin.id}-${otherId}` : `${otherId}-${pin.id}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      edges.push(
+        pin.id < otherId
+          ? { fromId: pin.id, toId: otherId, key }
+          : { fromId: otherId, toId: pin.id, key },
+      );
+    }
+  }
+  return edges;
+}
+
+/**
+ * Catenary-ish yarn sag as a quadratic bezier: longer spans droop more
+ * (clamped to a readable 10–45px).
+ */
+function yarnGeometry(x1: number, y1: number, x2: number, y2: number) {
+  const mx = (x1 + x2) / 2;
+  const my = (y1 + y2) / 2;
+  const sag = Math.min(45, Math.max(10, Math.hypot(x2 - x1, y2 - y1) * 0.08));
+  return {
+    d: `M ${x1} ${y1} Q ${mx} ${my + sag} ${x2} ${y2}`,
+    midX: mx,
+    midY: my + sag,
+  };
+}
+
 function makePin(type: PinType, unlockedDocs: CaseDocument[]): CorkboardPin {
   let label = "Note";
   if (type === "suspect") {
@@ -107,13 +147,17 @@ function samePins(a: CorkboardPin[], b: CorkboardPin[]): boolean {
   if (a.length !== b.length) return false;
   return b.every((p, i) => {
     const q = a[i];
+    const aConn = q.connectedTo ?? [];
+    const bConn = p.connectedTo ?? [];
     return (
       q.id === p.id &&
       q.x === p.x &&
       q.y === p.y &&
       q.type === p.type &&
       q.label === p.label &&
-      (q.by ?? "") === (p.by ?? "")
+      (q.by ?? "") === (p.by ?? "") &&
+      aConn.length === bConn.length &&
+      aConn.every((id, j) => id === bConn[j])
     );
   });
 }
@@ -147,6 +191,14 @@ export function Corkboard({
   const lastTapRef = useRef<{ time: number; x: number; y: number }>({ time: 0, x: 0, y: 0 });
   /** Pins touched locally (drop/add) → shielded from stale echoes. */
   const touchRef = useRef(new Map<string, number>());
+  /** Yarn mode: pin presses connect/cut strings instead of dragging. */
+  const [stringMode, setStringMode] = useState(false);
+  /** Pin id selected as the yarn's starting point (yarn mode). */
+  const [connectingSource, setConnectingSource] = useState<string | null>(null);
+  /** Live draft yarn endpoint in board pixels while a source is selected. */
+  const [draft, setDraft] = useState<{ x: number; y: number } | null>(null);
+  /** Edge key under the pointer (brighter render + cut affordance). */
+  const [hoverEdge, setHoverEdge] = useState<string | null>(null);
 
   const online = new Set(players.map((p) => p.name));
 
@@ -164,6 +216,19 @@ export function Corkboard({
     ro.observe(el);
     return () => ro.disconnect();
   }, []);
+
+  // ESC cancels the in-progress yarn (stays in string mode).
+  useEffect(() => {
+    if (!stringMode) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setConnectingSource(null);
+        setDraft(null);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [stringMode]);
 
   // Mirror incoming room_state into the local mirror — but never while a
   // drag is in flight, and never clobbering a pin dropped (or added) within
@@ -211,14 +276,88 @@ export function Corkboard({
   };
 
   const removePin = (id: string) => {
-    const next = localPins.filter((p) => p.id !== id);
+    // Cascade: strip the removed pin from every other pin's yarn so no
+    // orphaned string is ever rendered.
+    if (connectingSource === id) {
+      setConnectingSource(null);
+      setDraft(null);
+    }
+    const next = localPins
+      .filter((p) => p.id !== id)
+      .map((p) =>
+        (p.connectedTo ?? []).includes(id)
+          ? { ...p, connectedTo: p.connectedTo.filter((cid) => cid !== id) }
+          : p,
+      );
     setLocalPins(next);
     onPinsChange(next);
+  };
+
+  // --- Yarn mode: click-to-connect state machine (no drag). ---
+  const pressStringPin = (pin: CorkboardPin) => {
+    if (!connectingSource) {
+      setConnectingSource(pin.id);
+      return;
+    }
+    if (connectingSource === pin.id) {
+      setConnectingSource(null);
+      setDraft(null);
+      return;
+    }
+    const aId = connectingSource;
+    const bId = pin.id;
+    const a = localPins.find((p) => p.id === aId);
+    if (!a) {
+      setConnectingSource(null);
+      setDraft(null);
+      return;
+    }
+    const already = a.connectedTo.includes(bId) || pin.connectedTo.includes(aId);
+    const next = localPins.map((p) => {
+      if (p.id !== aId && p.id !== bId) return p;
+      const other = p.id === aId ? bId : aId;
+      const has = p.connectedTo.includes(other);
+      if (has === !already) return p; // already in the desired state
+      return {
+        ...p,
+        connectedTo: has
+          ? p.connectedTo.filter((id) => id !== other)
+          : [...p.connectedTo, other],
+      };
+    });
+    playSfx("pluck");
+    setLocalPins(next);
+    onPinsChange(next);
+    setConnectingSource(null);
+    setDraft(null);
+  };
+
+  /** Cut a yarn link (click on a thread), keeping both pin rows in sync. */
+  const cutConnection = (aId: string, bId: string) => {
+    const next = localPins.map((p) => {
+      if (p.id !== aId && p.id !== bId) return p;
+      const other = p.id === aId ? bId : aId;
+      if (!p.connectedTo.includes(other)) return p;
+      return { ...p, connectedTo: p.connectedTo.filter((id) => id !== other) };
+    });
+    playSfx("pluck");
+    setLocalPins(next);
+    onPinsChange(next);
+    if (connectingSource === aId || connectingSource === bId) {
+      setConnectingSource(null);
+      setDraft(null);
+    }
   };
 
   // --- Pointer press: record start point; NOT a drag yet (deadzone). ---
   const startPointer = (e: React.PointerEvent, pin: CorkboardPin) => {
     if (e.button !== 0) return; // primary button only
+    if (stringMode) {
+      // Yarn mode: a press is a selection, never a drag.
+      e.stopPropagation();
+      pressStringPin(pin);
+      return;
+    }
     draggingRef.current = true;
     hasDraggedRef.current = false;
     pendingRef.current = { id: pin.id, startX: e.clientX, startY: e.clientY };
@@ -297,6 +436,32 @@ export function Corkboard({
         <span className="font-type text-[10px] tracking-[0.25em] text-amber-100/40 uppercase">
           drag to arrange · double-click or × to remove · syncs to the room
         </span>
+        <button
+          type="button"
+          onClick={() => {
+            setConnectingSource(null);
+            setDraft(null);
+            setStringMode((v) => !v);
+          }}
+          className={`flex items-center gap-1.5 rounded-md border px-3 py-1.5 transition ${
+            stringMode
+              ? "border-blood-bright bg-blood/25 text-amber-50 shadow-[0_0_18px] shadow-blood/40"
+              : "border-black/50 bg-black/30 text-amber-100/80 hover:border-amber-400/50 hover:bg-black/50 hover:text-amber-100"
+          }`}
+        >
+          <span aria-hidden>🧶</span>
+          <span className="font-type text-[11px] tracking-[0.15em] uppercase">
+            {stringMode ? "String Mode" : "Connect Yarn"}
+          </span>
+        </button>
+        {stringMode && (
+          <span className="font-type rounded-md border border-blood/60 bg-noir-900/80 px-3 py-1.5 text-[10px] tracking-[0.2em] text-blood-bright uppercase">
+            {connectingSource
+              ? "Now pick a target pin"
+              : "Click a pin, then a target pin"}
+            {" · "}ESC cancels
+          </span>
+        )}
         <div className="ml-auto flex flex-wrap gap-1.5">
           {(Object.keys(PIN_STYLE) as PinType[]).map((t) => {
             const s = PIN_STYLE[t];
@@ -321,12 +486,27 @@ export function Corkboard({
       <div
         ref={boardRef}
         className="relative mt-3 h-[420px] select-none overflow-hidden rounded-md"
+        onPointerDown={(e) => {
+          // Empty-board press cancels an in-progress yarn (pins handle it themselves).
+          if (!stringMode || !connectingSource) return;
+          if (e.target !== e.currentTarget) return;
+          setConnectingSource(null);
+          setDraft(null);
+        }}
+        onPointerMove={(e) => {
+          // Draft yarn follows the cursor while a source pin is selected.
+          if (!stringMode || !connectingSource) return;
+          const rect = boardRef.current?.getBoundingClientRect();
+          if (!rect) return;
+          setDraft({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+        }}
         style={{
           background:
             "radial-gradient(rgba(0,0,0,0.28) 1px, transparent 1.4px), linear-gradient(135deg, #8a5a33 0%, #7a4e2b 40%, #66401f 100%)",
           backgroundSize: "9px 9px, cover",
           boxShadow: "inset 0 0 45px rgba(0,0,0,0.55)",
           touchAction: "none",
+          cursor: stringMode ? "crosshair" : undefined,
         }}
       >
         {localPins.length === 0 && (
@@ -334,6 +514,93 @@ export function Corkboard({
             The board is bare. Pin a suspect, a photo, a note, a document —
             start connecting threads.
           </p>
+        )}
+
+        {boardSize.w > 0 && boardSize.h > 0 && (
+          <svg
+            className="pointer-events-none absolute inset-0"
+            width={boardSize.w}
+            height={boardSize.h}
+          >
+            <defs>
+              <filter id="yarn-shadow" x="-20%" y="-20%" width="140%" height="140%">
+                <feDropShadow dx="0" dy="3" stdDeviation="2" floodOpacity="0.6" />
+              </filter>
+            </defs>
+            {(() => {
+              const byId = new Map(localPins.map((p) => [p.id, p]));
+              const source = connectingSource ? byId.get(connectingSource) : undefined;
+              return (
+                <>
+                  {getUniqueConnections(localPins).map((edge) => {
+                    const from = byId.get(edge.fromId);
+                    const to = byId.get(edge.toId);
+                    if (!from || !to) return null;
+                    const fp = drag && drag.id === from.id ? drag : { x: from.x, y: from.y };
+                    const tp = drag && drag.id === to.id ? drag : { x: to.x, y: to.y };
+                    const g = yarnGeometry(
+                      (fp.x / 100) * boardSize.w,
+                      (fp.y / 100) * boardSize.h,
+                      (tp.x / 100) * boardSize.w,
+                      (tp.y / 100) * boardSize.h,
+                    );
+                    const hovered = hoverEdge === edge.key;
+                    return (
+                      <g key={edge.key}>
+                        <path
+                          d={g.d}
+                          fill="none"
+                          stroke={hovered ? "#f87171" : "#b91c1c"}
+                          strokeWidth={2.5}
+                          strokeLinecap="round"
+                          filter="url(#yarn-shadow)"
+                        />
+                        {/* Wide invisible hit-box: hover highlights, click cuts. */}
+                        <path
+                          d={g.d}
+                          fill="none"
+                          stroke="transparent"
+                          strokeWidth={14}
+                          style={{ pointerEvents: "stroke", cursor: "pointer" }}
+                          onPointerEnter={() => setHoverEdge(edge.key)}
+                          onPointerLeave={() => setHoverEdge(null)}
+                          onClick={() => cutConnection(edge.fromId, edge.toId)}
+                        />
+                        {hovered && (
+                          <text
+                            x={g.midX}
+                            y={g.midY - 10}
+                            textAnchor="middle"
+                            fontSize={11}
+                            fill="#fecaca"
+                            className="font-type"
+                          >
+                            ✂ cut string
+                          </text>
+                        )}
+                      </g>
+                    );
+                  })}
+                  {source && draft && (
+                    <path
+                      d={yarnGeometry(
+                        (source.x / 100) * boardSize.w,
+                        (source.y / 100) * boardSize.h,
+                        draft.x,
+                        draft.y,
+                      ).d}
+                      fill="none"
+                      stroke="#ef4444"
+                      strokeWidth={2}
+                      strokeDasharray="7 5"
+                      opacity={0.85}
+                      filter="url(#yarn-shadow)"
+                    />
+                  )}
+                </>
+              );
+            })()}
+          </svg>
         )}
 
         {localPins.map((pin) => {
@@ -358,13 +625,17 @@ export function Corkboard({
                 transform: `translate3d(${px}px, ${py}px, 0) translate(-50%, -50%)`,
                 willChange: isDragging ? "transform" : undefined,
                 touchAction: "none",
-                cursor: isDragging ? "grabbing" : "grab",
+                cursor: stringMode ? "crosshair" : isDragging ? "grabbing" : "grab",
                 zIndex: isDragging ? 30 : 10,
               }}
             >
               <div
                 className={`group relative w-36 -rotate-1 ${isDragging ? "scale-105" : ""} ${
                   isDragging ? "" : "transition-transform"
+                } ${
+                  stringMode && connectingSource === pin.id
+                    ? "animate-pulse ring-2 ring-red-500"
+                    : ""
                 }`}
               >
                 {/* Delete badge — hover/focus-within only; never starts a drag */}

@@ -15,10 +15,11 @@
  *  - "bell"    : metallic ding — stage solved / case victory
  *  - "buzzer"  : dull square-wave throb — accusation rejected
  *  - "stamp"   : heavy double knock — filing an accusation
+ *  - "pluck"   : damped string twang — connecting or cutting a yarn link
  * Ambient: optional looping rain (header toggle), a filtered noise bed.
  */
 
-export type SfxName = "paper" | "thud" | "bell" | "buzzer" | "stamp";
+export type SfxName = "paper" | "thud" | "bell" | "buzzer" | "stamp" | "pluck";
 
 const MUTE_KEY = "cca-sfx-muted";
 const RAIN_KEY = "cca-rain";
@@ -266,6 +267,12 @@ export function playSfx(name: SfxName): void {
       burst(c, t, 0.08, 0.5, "lowpass", 260);
       tone(c, t + 0.16, "sine", 70, 38, 0.1, 0.5);
       burst(c, t + 0.16, 0.06, 0.35, "lowpass", 220);
+      break;
+    case "pluck":
+      // Broadband snap, then a fast decaying fundamental + octave.
+      burst(c, t, 0.03, 0.3, "bandpass", 900, 1.2);
+      tone(c, t, "sawtooth", 185, 178, 0.26, 0.22, 1100);
+      tone(c, t + 0.012, "triangle", 370, 356, 0.18, 0.07, 1400);
       break;
   }
 }
